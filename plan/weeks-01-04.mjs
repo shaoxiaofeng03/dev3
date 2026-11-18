@@ -40,10 +40,10 @@ export const weeks = [
         tasks: [
           t('w1d2t1', 25, '算法：数组 2 题（合并两个有序数组 / 删除有序数组中的重复项）'),
           t('w1d2t2', 50, 'Python 基础：类型、list/dict/set、推导式、函数与默认参数、解构赋值、生成器。每学一个都对照 Java 想「等价写法是什么」'),
-          t('w1d2t3', 30, '10 个小练习：字符串处理 + 字典聚合 + 排序 lambda', true),
+          t('w1d2t3', 30, '10 个练习：在 projects/w1/exercises_w1.py 里完成，跑到 10/10', true),
           t('w1d2t4', 15, '记忆卡：第 1 周 w1-c1 ~ w1-c4'),
         ],
-        output: '今日交付：exercises_w1.py，10 题全部跑通',
+        output: '今日交付：projects/w1/exercises_w1.py，10 题全部跑通',
       },
       {
         date: '2026-11-25',
@@ -135,6 +135,8 @@ export const weeks = [
     resources: [
       { title: 'Anthropic · Building effective agents', url: 'https://www.anthropic.com/engineering/building-effective-agents' },
       { title: 'DeepSeek API 文档', url: 'https://api-docs.deepseek.com/' },
+      { title: 'Python 官方教程（中文）', url: 'https://docs.python.org/zh-cn/3/tutorial/' },
+      { title: 'Learn Python in Y minutes', url: 'https://learnxinyminutes.com/docs/python/' },
       { title: 'DeepSeek 模型与价格', url: 'https://api-docs.deepseek.com/quick_start/pricing' },
       { title: 'DeepSeek 错误码', url: 'https://api-docs.deepseek.com/quick_start/error_codes' },
       { title: 'uv 官方文档', url: 'https://docs.astral.sh/uv/' },

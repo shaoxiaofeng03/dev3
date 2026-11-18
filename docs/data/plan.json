@@ -176,7 +176,7 @@
             {
               "id": "w1d2t3",
               "min": 30,
-              "text": "10 个小练习：字符串处理 + 字典聚合 + 排序 lambda",
+              "text": "10 个练习：在 projects/w1/exercises_w1.py 里完成，跑到 10/10",
               "deliverable": true
             },
             {
@@ -186,7 +186,7 @@
               "deliverable": false
             }
           ],
-          "output": "今日交付：exercises_w1.py，10 题全部跑通"
+          "output": "今日交付：projects/w1/exercises_w1.py，10 题全部跑通"
         },
         {
           "date": "2026-11-25",
@@ -413,6 +413,14 @@
         {
           "title": "DeepSeek API 文档",
           "url": "https://api-docs.deepseek.com/"
+        },
+        {
+          "title": "Python 官方教程（中文）",
+          "url": "https://docs.python.org/zh-cn/3/tutorial/"
+        },
+        {
+          "title": "Learn Python in Y minutes",
+          "url": "https://learnxinyminutes.com/docs/python/"
         },
         {
           "title": "DeepSeek 模型与价格",

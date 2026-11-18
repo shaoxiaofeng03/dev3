@@ -34,7 +34,7 @@ description: 2026-11-23 起，P0 地基
 | 日期 | 星期 | 时长 | 重点 | 当日交付 |
 | --- | --- | --- | --- | --- |
 | 2026-11-23 | 周一 | 2h | 认知地图 + 环境搭建 | 一张技术地图 + 环境检查全部通过 |
-| 2026-11-24 | 周二 | 2h | Python 速成（一）：语法与数据结构 | exercises_w1.py，10 题全部跑通 |
+| 2026-11-24 | 周二 | 2h | Python 速成（一）：语法与数据结构 | projects/w1/exercises_w1.py，10 题全部跑通 |
 | 2026-11-25 | 周三 | 2h | Python 速成（二）：工程化与 HTTP | 带类型注解和异常处理的 CLI 小工具 |
 | 2026-11-26 | 周四 | 2h | LLM 基础概念与参数 | 参数速查表 + 能不看文档说清 temperature 和 top_p 的区别 |
 | 2026-11-27 | 周五 | 2h | 第一次 API 调用：单轮 → 多轮 → 流式 | chat.py 支持多轮对话 + 流式输出 + 用量统计 |
@@ -63,6 +63,8 @@ description: 2026-11-23 起，P0 地基
 
 - [Anthropic · Building effective agents](https://www.anthropic.com/engineering/building-effective-agents)
 - [DeepSeek API 文档](https://api-docs.deepseek.com/)
+- [Python 官方教程（中文）](https://docs.python.org/zh-cn/3/tutorial/)
+- [Learn Python in Y minutes](https://learnxinyminutes.com/docs/python/)
 - [DeepSeek 模型与价格](https://api-docs.deepseek.com/quick_start/pricing)
 - [DeepSeek 错误码](https://api-docs.deepseek.com/quick_start/error_codes)
 - [uv 官方文档](https://docs.astral.sh/uv/)
