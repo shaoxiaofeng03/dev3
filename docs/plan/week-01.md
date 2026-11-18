@@ -63,6 +63,8 @@ description: 2026-11-23 起，P0 地基
 
 - [Anthropic · Building effective agents](https://www.anthropic.com/engineering/building-effective-agents)
 - [DeepSeek API 文档](https://api-docs.deepseek.com/)
+- [DeepSeek 模型与价格](https://api-docs.deepseek.com/quick_start/pricing)
+- [DeepSeek 错误码](https://api-docs.deepseek.com/quick_start/error_codes)
 - [uv 官方文档](https://docs.astral.sh/uv/)
 - [LeetCode 热题 100](https://leetcode.cn/studyplan/top-100-liked/)
 

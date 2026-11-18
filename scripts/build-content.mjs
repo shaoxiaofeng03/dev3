@@ -177,7 +177,7 @@ function planIndexMd() {
   ];
   for (const [k, v] of rows) if (v) lines.push(`| ${k} | ${escapeCell(v)} |`);
   lines.push('');
-  lines.push('> 南京的岗位结构和北上深不一样：B 端、金融科技、电力能源、传统软件占比更高，Java 栈更吃香。具体的公司类型、投递节奏和题单，见 [南京岗位地图](/guide/market-nanjing) 与 [零基础算法题单](/guide/algo)。');
+  lines.push('> 南京的岗位结构和北上深不一样：B 端、金融科技、电力能源、传统软件占比更高，Java 栈更吃香。具体的公司类型、投递节奏和题单，见 [南京岗位地图](/guide/market-nanjing) 与 [零基础算法题单](/guide/algo)；模型调用统一用 [DeepSeek 接入指南](/guide/deepseek)。');
   lines.push('');
   lines.push('## 这份计划怎么来的');
   lines.push('');

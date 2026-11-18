@@ -78,6 +78,7 @@ export default defineConfig({
           { text: '怎么用这套站点', link: '/guide/how-to-use' },
           { text: '南京岗位地图', link: '/guide/market-nanjing' },
           { text: '零基础算法题单', link: '/guide/algo' },
+          { text: 'DeepSeek 接入', link: '/guide/deepseek' },
           { text: '配置 GitHub Token', link: '/guide/github-token' },
           { text: '数据结构说明', link: '/guide/data-format' },
           { text: '部署到 GitHub Pages', link: '/guide/deploy' },
@@ -94,6 +95,7 @@ export default defineConfig({
             { text: '怎么用这套站点', link: '/guide/how-to-use' },
             { text: '南京岗位地图', link: '/guide/market-nanjing' },
             { text: '零基础算法题单', link: '/guide/algo' },
+            { text: 'DeepSeek 接入', link: '/guide/deepseek' },
             { text: '配置 GitHub Token', link: '/guide/github-token' },
             { text: '数据结构说明', link: '/guide/data-format' },
             { text: '部署到 GitHub Pages', link: '/guide/deploy' },
@@ -126,3 +128,4 @@ export default defineConfig({
     },
   },
 });
+

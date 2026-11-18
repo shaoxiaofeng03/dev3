@@ -66,7 +66,7 @@ export const weeks = [
         tasks: [
           t('w1d4t1', 25, '算法：数组复盘 1 题（加一）+ 复习前 3 天错题'),
           t('w1d4t2', 50, 'token / 上下文窗口 / temperature / top_p / max_tokens / 流式 / 计费方式 / 幻觉成因'),
-          t('w1d4t3', 30, '读一家厂商的 API 文档（DeepSeek 或通义），整理参数速查表', true),
+          t('w1d4t3', 30, '读 DeepSeek 文档：模型、1M 上下文、思考模式、价格与限流，整理参数速查表', true),
           t('w1d4t4', 15, '记忆卡：w1-c9 ~ w1-c12，自测 10 问'),
         ],
         output: '今日交付：参数速查表 + 能不看文档说清 temperature 和 top_p 的区别',
@@ -78,7 +78,7 @@ export const weeks = [
         focus: '第一次 API 调用：单轮 → 多轮 → 流式',
         tasks: [
           t('w1d5t1', 25, '算法：双指针 2 题（移除元素 / 反转字符串）'),
-          t('w1d5t2', 60, '用 OpenAI 兼容接口写 chat.py：环境变量存 key、单轮问答、多轮 messages、流式打印', true),
+          t('w1d5t2', 60, '用 DeepSeek 的 OpenAI 兼容接口写 chat.py：DEEPSEEK_API_KEY、base_url、多轮、流式', true),
           t('w1d5t3', 20, '记录每次调用的 token 用量与费用，算一遍「1000 次问答要多少钱」'),
           t('w1d5t4', 15, '记忆卡：本周卡片过一遍'),
         ],
@@ -92,7 +92,7 @@ export const weeks = [
         tasks: [
           t('w1d6t1', 60, '算法：数组 4 题（轮转数组 / 最大子数组和 / 买卖股票的最佳时机 / 移动零复习）'),
           t('w1d6t2', 120, '抽象 LLMClient：指数退避重试、超时、并发限流、结构化日志、用量统计、多模型切换', true),
-          t('w1d6t3', 90, '结构化输出：JSON Schema + pydantic 校验 + 校验失败自动重试 + 修复提示词', true),
+          t('w1d6t3', 90, '结构化输出：response_format=json_object + pydantic 校验 + 失败重试 + 修复提示词', true),
           t('w1d6t4', 60, 'pytest 写 10 个单测（mock 掉网络层），覆盖重试、超时、坏 JSON', true),
           t('w1d6t5', 60, '技术笔记：为什么「重试 + 校验 + 可观测」是 AI 应用的基本盘', true),
           t('w1d6t6', 45, '记忆卡：第 1 周全量'),
@@ -135,6 +135,8 @@ export const weeks = [
     resources: [
       { title: 'Anthropic · Building effective agents', url: 'https://www.anthropic.com/engineering/building-effective-agents' },
       { title: 'DeepSeek API 文档', url: 'https://api-docs.deepseek.com/' },
+      { title: 'DeepSeek 模型与价格', url: 'https://api-docs.deepseek.com/quick_start/pricing' },
+      { title: 'DeepSeek 错误码', url: 'https://api-docs.deepseek.com/quick_start/error_codes' },
       { title: 'uv 官方文档', url: 'https://docs.astral.sh/uv/' },
       { title: 'LeetCode 热题 100', url: 'https://leetcode.cn/studyplan/top-100-liked/' },
     ],
@@ -149,8 +151,8 @@ export const weeks = [
       { id: 'w1-c7', tag: '幻觉', front: '幻觉的三个主要成因和对应缓解手段？', back: '① 知识缺失：模型没有该知识 → 用 RAG 提供证据并要求引用；② 训练数据偏差/过时 → 检索 + 时效性说明；③ 任务要求超出能力（多步推理、精确计算）→ 拆解任务、给工具（计算器/代码执行）。另加：允许模型说「不知道」。' },
       { id: 'w1-c8', tag: '工程', front: '为什么重试要指数退避？为什么还要加抖动？', back: '限流/瞬时故障时立即重试会放大拥塞；指数退避让等待时间递增。加随机抖动（jitter）避免大量客户端同一时刻重试造成「惊群」。配合最大重试次数、幂等键和熔断。' },
       { id: 'w1-c9', tag: '工程', front: 'AI 应用为什么必须做可观测性？要记哪些字段？', back: '模型输出不确定、链路长、成本浮动，出问题无法靠「看代码」定位。至少记：请求 id、模型与参数、prompt 版本、检索片段及分数、token 与费用、各阶段耗时、重试次数、最终输出与是否被用户采纳。' },
-      { id: 'w1-c10', tag: '选型', front: 'RAG、长上下文、微调，什么时候用哪个？', back: '知识频繁更新、要求引用溯源 → RAG；一次性长文档理解、上下文能装下 → 长上下文；需要稳定输出风格/领域术语/降低小模型成本 → 微调。三者常组合：RAG 供知识 + 微调定行为 + 长上下文做深度阅读。' },
-      { id: 'w1-c11', tag: '生态', front: '为什么大家都提供「OpenAI 兼容接口」？对你有什么好处？', back: '统一了 /v1/chat/completions 的请求响应格式，SDK 和工具链可以直接复用。好处：一套代码多模型切换、便于做降级与比价、迁移成本低。风险：兼容层可能缺失高级能力（如原生结构化输出），要按厂商文档验证。' },
+      { id: 'w1-c10', tag: '选型', front: 'RAG、长上下文、微调，什么时候用哪个？', back: '知识频繁更新、要求引用溯源、需要权限隔离 → RAG；一次性长文档理解、上下文能装下 → 长上下文（现在的模型上下文已到 1M，但塞满仍然贵且慢，缓存未命中的输入价与命中价差一个数量级）；需要稳定输出风格/领域术语/降低小模型成本 → 微调。三者常组合：RAG 供知识 + 微调定行为 + 长上下文做深度阅读。' },
+      { id: 'w1-c11', tag: '生态', front: '为什么大家都提供「OpenAI 兼容接口」？对你有什么好处？', back: '统一了 messages / tool_calls / usage 这些请求响应结构，SDK 和工具链可以直接复用（注意 base_url 各家不同，路径也可能是 /chat/completions 而不是 /v1/chat/completions）。好处：一套代码多模型切换、便于做降级与比价、迁移成本低。风险：兼容层可能缺失高级能力（如原生结构化输出 schema、思考模式参数），要按厂商文档验证。' },
       { id: 'w1-c12', tag: '迁移', front: 'Python 的 uv/venv 和 Java 的 Maven 怎么对应？', back: 'pyproject.toml ≈ pom.xml（声明依赖与项目元数据）；uv.lock ≈ 依赖锁定（类似 maven 的确定性构建）；venv ≈ 项目本地隔离的运行环境（类似 per-project 的 classpath）；uv run ≈ mvn exec。关键差异：Python 环境隔离是显式的，每个项目一个 venv。' },
     ],
   },
@@ -592,6 +594,7 @@ export const weeks = [
     ],
   },
 ];
+
 
 
 
