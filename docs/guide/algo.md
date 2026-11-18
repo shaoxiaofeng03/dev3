@@ -6,11 +6,12 @@ title: 零基础算法题单
 
 计划里每天留了 **25 分钟算法**。你没有刷过题，所以这 25 分钟不是「随便刷两道」，而是按下面的题单走：**前 6 周只做基础题型，把模板练成肌肉记忆**，第 7 周之后再上 Hot 100 的剩余部分。
 
-## 一、先接受三件事
+## 一、先接受四件事
 
 1. **25 分钟只够 1 题。** 不是 3 题。做不完是正常的，顺延到第二天，不要挤占主线（RAG/Agent）的时间。
 2. **第一遍允许看题解。** 但要求：看完关掉，自己默写一遍；第二天不看答案再写一遍。写不出来等于没学。
 3. **手写用 Java。** 面试是 Java，项目是 Python，别混。Java 写法要注意 `int` 溢出、`StringBuilder`、数组拷贝这几个高频坑。
+4. **题都在力扣（leetcode.cn）上做。** 下面题单里的题名可以直接点开；不用买会员（这些题全部免费）；手机上也能刷，但写代码请用电脑。
 
 ## 二、每天 25 分钟怎么花
 
@@ -24,48 +25,48 @@ title: 零基础算法题单
 
 | # | 题目 | 难度 | 备注 |
 | --- | --- | --- | --- |
-| 1 | 两数之和 | 易 | 暴力 → 哈希，理解「用空间换时间」 |
-| 2 | 移动零 | 易 | 双指针原地交换 |
-| 3 | 合并两个有序数组 | 易 | 从后往前双指针 |
-| 4 | 删除有序数组中的重复项 | 易 | 快慢指针 |
-| 5 | 轮转数组 | 中 | 三次反转 |
-| 6 | 加一 | 易 | 进位边界 |
-| 7 | 最大子数组和 | 中 | 动态规划入门（也可贪心） |
-| 8 | 买卖股票的最佳时机 | 易 | 一次遍历维护最小值 |
+| 1 | [两数之和](https://leetcode.cn/problems/two-sum/) | 易 | 暴力 → 哈希，理解「用空间换时间」 |
+| 2 | [移动零](https://leetcode.cn/problems/move-zeroes/) | 易 | 双指针原地交换 |
+| 3 | [合并两个有序数组](https://leetcode.cn/problems/merge-sorted-array/) | 易 | 从后往前双指针 |
+| 4 | [删除有序数组中的重复项](https://leetcode.cn/problems/remove-duplicates-from-sorted-array/) | 易 | 快慢指针 |
+| 5 | [轮转数组](https://leetcode.cn/problems/rotate-array/) | 中 | 三次反转 |
+| 6 | [加一](https://leetcode.cn/problems/plus-one/) | 易 | 进位边界 |
+| 7 | [最大子数组和](https://leetcode.cn/problems/maximum-subarray/) | 中 | 动态规划入门（也可贪心） |
+| 8 | [买卖股票的最佳时机](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock/) | 易 | 一次遍历维护最小值 |
 
 ## 四、W2：哈希、双指针、滑动窗口（10 题）
 
 | # | 题目 | 难度 | 备注 |
 | --- | --- | --- | --- |
-| 1 | 有效的字母异位词 | 易 | 计数数组 / 哈希 |
-| 2 | 存在重复元素 | 易 | 集合 |
-| 3 | 最长连续序列 | 中 | 哈希 + 只从序列起点扩展 |
-| 4 | 字母异位词分组 | 中 | 哈希 key 的设计 |
-| 5 | 三数之和 | 中 | 排序 + 双指针 + 去重 |
-| 6 | 盛最多水的容器 | 中 | 双指针移动规则 |
-| 7 | 无重复字符的最长子串 | 中 | 滑动窗口模板 |
-| 8 | 长度最小的子数组 | 中 | 滑动窗口（正数才可用） |
-| 9 | 找到字符串中所有字母异位词 | 中 | 定长窗口 |
-| 10 | 最小覆盖子串 | 难 | 选做，窗口模板的终极形态 |
+| 1 | [有效的字母异位词](https://leetcode.cn/problems/valid-anagram/) | 易 | 计数数组 / 哈希 |
+| 2 | [存在重复元素](https://leetcode.cn/problems/contains-duplicate/) | 易 | 集合 |
+| 3 | [最长连续序列](https://leetcode.cn/problems/longest-consecutive-sequence/) | 中 | 哈希 + 只从序列起点扩展 |
+| 4 | [字母异位词分组](https://leetcode.cn/problems/group-anagrams/) | 中 | 哈希 key 的设计 |
+| 5 | [三数之和](https://leetcode.cn/problems/3sum/) | 中 | 排序 + 双指针 + 去重 |
+| 6 | [盛最多水的容器](https://leetcode.cn/problems/container-with-most-water/) | 中 | 双指针移动规则 |
+| 7 | [无重复字符的最长子串](https://leetcode.cn/problems/longest-substring-without-repeating-characters/) | 中 | 滑动窗口模板 |
+| 8 | [长度最小的子数组](https://leetcode.cn/problems/minimum-size-subarray-sum/) | 中 | 滑动窗口（正数才可用） |
+| 9 | [找到字符串中所有字母异位词](https://leetcode.cn/problems/find-all-anagrams-in-a-string/) | 中 | 定长窗口 |
+| 10 | [最小覆盖子串](https://leetcode.cn/problems/minimum-window-substring/) | 难 | 选做，窗口模板的终极形态 |
 
 ## 五、W3：链表、栈队列、二叉树（14 题）
 
 | # | 题目 | 难度 | 备注 |
 | --- | --- | --- | --- |
-| 1 | 反转链表 | 易 | 三指针 |
-| 2 | 合并两个有序链表 | 易 | 哑节点 |
-| 3 | 环形链表 | 易 | 快慢指针 |
-| 4 | 相交链表 | 易 | 双指针走完彼此的路 |
-| 5 | 有效的括号 | 易 | 栈 |
-| 6 | 最小栈 | 中 | 辅助栈 |
-| 7 | 每日温度 | 中 | 单调栈 |
-| 8 | 逆波兰表达式求值 | 中 | 栈的应用 |
-| 9 | 用队列实现栈 | 易 | 结构转换 |
-| 10 | 字符串解码 | 中 | 双栈 |
-| 11 | 二叉树的最大深度 | 易 | 递归 |
-| 12 | 翻转二叉树 | 易 | 递归 |
-| 13 | 对称二叉树 | 易 | 双指针递归 |
-| 14 | 二叉树的层序遍历 | 中 | BFS 模板 |
+| 1 | [反转链表](https://leetcode.cn/problems/reverse-linked-list/) | 易 | 三指针 |
+| 2 | [合并两个有序链表](https://leetcode.cn/problems/merge-two-sorted-lists/) | 易 | 哑节点 |
+| 3 | [环形链表](https://leetcode.cn/problems/linked-list-cycle/) | 易 | 快慢指针 |
+| 4 | [相交链表](https://leetcode.cn/problems/intersection-of-two-linked-lists/) | 易 | 双指针走完彼此的路 |
+| 5 | [有效的括号](https://leetcode.cn/problems/valid-parentheses/) | 易 | 栈 |
+| 6 | [最小栈](https://leetcode.cn/problems/min-stack/) | 中 | 辅助栈 |
+| 7 | [每日温度](https://leetcode.cn/problems/daily-temperatures/) | 中 | 单调栈 |
+| 8 | [逆波兰表达式求值](https://leetcode.cn/problems/evaluate-reverse-polish-notation/) | 中 | 栈的应用 |
+| 9 | [用队列实现栈](https://leetcode.cn/problems/implement-stack-using-queues/) | 易 | 结构转换 |
+| 10 | [字符串解码](https://leetcode.cn/problems/decode-string/) | 中 | 双栈 |
+| 11 | [二叉树的最大深度](https://leetcode.cn/problems/maximum-depth-of-binary-tree/) | 易 | 递归 |
+| 12 | [翻转二叉树](https://leetcode.cn/problems/invert-binary-tree/) | 易 | 递归 |
+| 13 | [对称二叉树](https://leetcode.cn/problems/symmetric-tree/) | 易 | 双指针递归 |
+| 14 | [二叉树的层序遍历](https://leetcode.cn/problems/binary-tree-level-order-traversal/) | 中 | BFS 模板 |
 
 > 进阶（有余力再做）：路径总和、二叉树展开为链表、从前序与中序遍历构造二叉树、二叉树的最近公共祖先。
 
@@ -73,18 +74,18 @@ title: 零基础算法题单
 
 | # | 题目 | 难度 | 备注 |
 | --- | --- | --- | --- |
-| 1 | 二分查找 | 易 | 区间写法要固定一种 |
-| 2 | 搜索插入位置 | 易 | 边界 |
-| 3 | 搜索旋转排序数组 | 中 | 二分的变体 |
-| 4 | 寻找旋转排序数组中的最小值 | 中 | 同上 |
-| 5 | 跳跃游戏 | 中 | 贪心：维护最远可达 |
-| 6 | 跳跃游戏 II | 中 | 贪心：层数 |
-| 7 | 爬楼梯 | 易 | DP 入门 |
-| 8 | 打家劫舍 | 中 | 状态转移 |
-| 9 | 最长递增子序列 | 中 | O(n²) 先写对 |
-| 10 | 合并区间 | 中 | 排序 + 合并 |
-| 11 | 插入区间 | 中 | 分类讨论 |
-| 12 | 不同路径 | 中 | 二维 DP |
+| 1 | [二分查找](https://leetcode.cn/problems/binary-search/) | 易 | 区间写法要固定一种 |
+| 2 | [搜索插入位置](https://leetcode.cn/problems/search-insert-position/) | 易 | 边界 |
+| 3 | [搜索旋转排序数组](https://leetcode.cn/problems/search-in-rotated-sorted-array/) | 中 | 二分的变体 |
+| 4 | [寻找旋转排序数组中的最小值](https://leetcode.cn/problems/find-minimum-in-rotated-sorted-array/) | 中 | 同上 |
+| 5 | [跳跃游戏](https://leetcode.cn/problems/jump-game/) | 中 | 贪心：维护最远可达 |
+| 6 | [跳跃游戏 II](https://leetcode.cn/problems/jump-game-ii/) | 中 | 贪心：层数 |
+| 7 | [爬楼梯](https://leetcode.cn/problems/climbing-stairs/) | 易 | DP 入门 |
+| 8 | [打家劫舍](https://leetcode.cn/problems/house-robber/) | 中 | 状态转移 |
+| 9 | [最长递增子序列](https://leetcode.cn/problems/longest-increasing-subsequence/) | 中 | O(n²) 先写对 |
+| 10 | [合并区间](https://leetcode.cn/problems/merge-intervals/) | 中 | 排序 + 合并 |
+| 11 | [插入区间](https://leetcode.cn/problems/insert-interval/) | 中 | 分类讨论 |
+| 12 | [不同路径](https://leetcode.cn/problems/unique-paths/) | 中 | 二维 DP |
 
 ## 七、W5–W6：排序、回溯、DP 巩固
 
