@@ -25,7 +25,9 @@ const weekRows = computed(() =>
   weeks.map((w) => ({ ...w, stats: weekStats(w.n) }))
 );
 
-const startedWeeks = computed(() => weekRows.value.filter((w) => w.start <= todayStr()));
+const startedWeeks = computed(() =>
+  weekRows.value.filter((w) => w.start <= todayStr() || w.stats.done > 0)
+);
 
 const hours = computed(() => (overview.value.totalMinutes / 60).toFixed(1));
 
@@ -137,7 +139,7 @@ const itemCount = (ids: string[]) => (Array.isArray(ids) ? ids.length : 0);
     <TodayPanel />
 
     <h3 class="sec-title">打卡热力图</h3>
-    <Heatmap :days="140" />
+    <Heatmap />
 
     <h3 class="sec-title">每周进度</h3>
     <div class="week-table">
@@ -156,7 +158,7 @@ const itemCount = (ids: string[]) => (Array.isArray(ids) ? ids.length : 0);
       <details class="week-rest">
         <summary>未开始的周（{{ weeks.length - startedWeeks.length }}）</summary>
         <a
-          v-for="w in weekRows.filter((x) => !(x.start <= todayStr()))"
+          v-for="w in weekRows.filter((x) => !(x.start <= todayStr() || x.stats.done > 0))"
           :key="w.n"
           class="week-row dim"
           :href="withBase(`/plan/week-${pad2(w.n)}`)"

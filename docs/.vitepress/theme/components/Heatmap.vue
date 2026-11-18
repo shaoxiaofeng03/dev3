@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { parseDate } from '../composables/plan';
-import { heatmap, store } from '../composables/checkins';
+import { parseDate, plan } from '../composables/plan';
+import { heatmapRange, store } from '../composables/checkins';
 
-const props = withDefaults(defineProps<{ days?: number }>(), { days: 140 });
+const props = withDefaults(defineProps<{ start?: string; end?: string }>(), {
+  start: plan.meta.start,
+  end: plan.meta.end,
+});
 
 const selected = ref<string>('');
 
-const cells = computed(() => heatmap(props.days));
+const cells = computed(() => heatmapRange(props.start, props.end));
 
 const columns = computed(() => {
   const list = cells.value;
@@ -77,7 +80,7 @@ const selectedEntry = computed(() => (selected.value ? store.entries[selected.va
                   v-else
                   type="button"
                   class="hm-cell"
-                  :class="[level(cell.count), { active: selected === cell.date, out: !cell.inPlan }]"
+                  :class="[level(cell.count), { active: selected === cell.date, future: cell.isFuture }]"
                   :title="`${cell.date} · 完成 ${cell.count} 项 · ${cell.minutes} 分钟`"
                   @click="pick(cell.date)"
                 ></button>
@@ -162,8 +165,8 @@ button.hm-cell {
   background: transparent;
 }
 .hm-cell.l0 {
-  background: var(--vp-c-bg-alt);
-  box-shadow: inset 0 0 0 1px var(--vp-c-divider);
+  background: var(--vp-c-default-soft);
+  opacity: 0.85;
 }
 .hm-cell.l1 {
   background: rgba(91, 108, 255, 0.3);
@@ -177,8 +180,8 @@ button.hm-cell {
 .hm-cell.l4 {
   background: var(--vp-c-brand-1);
 }
-.hm-cell.out {
-  opacity: 0.35;
+.hm-cell.future {
+  opacity: 0.45;
 }
 .hm-cell.active {
   outline: 2px solid var(--vp-c-brand-1);
@@ -207,3 +210,4 @@ button.hm-cell {
   display: inline-block;
 }
 </style>
+

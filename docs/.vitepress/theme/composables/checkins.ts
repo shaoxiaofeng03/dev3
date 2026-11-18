@@ -191,14 +191,19 @@ export const overview = computed(() => {
   const totalDone = [...doneSet.value].length;
   const totalMinutes = entries.reduce((s, e) => s + (e.minutes ?? 0), 0);
 
-  // 连续打卡：从今天（或昨天）往前数，只要当天有记录就算
-  let streak = 0;
-  let cursor = todayStr();
+  // 连续打卡：从「最近一次有记录的那天」往前数连续天数
   const has = (d: string) => (store.entries[d]?.items.length ?? 0) > 0;
-  if (!has(cursor)) cursor = addDays(cursor, -1);
-  while (has(cursor)) {
-    streak += 1;
-    cursor = addDays(cursor, -1);
+  const activeDates = entries
+    .filter((e) => e.items.length > 0)
+    .map((e) => e.date)
+    .sort();
+  let streak = 0;
+  if (activeDates.length) {
+    let cursor = activeDates[activeDates.length - 1];
+    while (has(cursor)) {
+      streak += 1;
+      cursor = addDays(cursor, -1);
+    }
   }
 
   return {
@@ -215,21 +220,25 @@ export interface HeatCell {
   date: string;
   count: number;
   minutes: number;
-  inPlan: boolean;
+  isFuture: boolean;
 }
 
-export function heatmap(days = 140): HeatCell[] {
-  const start = addDays(todayStr(), -(days - 1));
+/** 按日期区间生成热力图数据（区间通常就是整个计划周期） */
+export function heatmapRange(start: string, end: string): HeatCell[] {
   const out: HeatCell[] = [];
-  for (let i = 0; i < days; i += 1) {
-    const date = addDays(start, i);
-    const e = store.entries[date];
+  const today = todayStr();
+  let cursor = start;
+  let guard = 0;
+  while (cursor <= end && guard < 800) {
+    const e = store.entries[cursor];
     out.push({
-      date,
+      date: cursor,
       count: e?.items.length ?? 0,
       minutes: e?.minutes ?? 0,
-      inPlan: date >= weeks[0].start && date <= weeks[weeks.length - 1].end,
+      isFuture: cursor > today,
     });
+    cursor = addDays(cursor, 1);
+    guard += 1;
   }
   return out;
 }
