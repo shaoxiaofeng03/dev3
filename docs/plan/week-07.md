@@ -27,7 +27,7 @@ description: 2027-01-04 起，P1 RAG
 
 > 这一周按「周目标 + 清单」推进，开始前把清单拆成 7 天。勾选会实时保存，并可通过打卡页同步到 GitHub。
 
-<WeekTasks week="7" />
+<ClientOnly><WeekTasks week="7" /></ClientOnly>
 
 ## 本周交付
 
@@ -53,7 +53,7 @@ description: 2027-01-04 起，P1 RAG
 
 ## 记忆卡
 
-<FlashCards week="7" />
+<ClientOnly><FlashCards week="7" /></ClientOnly>
 
 ## 复盘问题
 

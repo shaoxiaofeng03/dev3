@@ -27,7 +27,7 @@ description: 2027-03-22 起，P4 冲刺
 
 > 这一周按「周目标 + 清单」推进，开始前把清单拆成 7 天。勾选会实时保存，并可通过打卡页同步到 GitHub。
 
-<WeekTasks week="18" />
+<ClientOnly><WeekTasks week="18" /></ClientOnly>
 
 ## 本周交付
 
@@ -45,7 +45,7 @@ description: 2027-03-22 起，P4 冲刺
 
 ## 记忆卡
 
-<FlashCards week="18" />
+<ClientOnly><FlashCards week="18" /></ClientOnly>
 
 ## 复盘问题
 

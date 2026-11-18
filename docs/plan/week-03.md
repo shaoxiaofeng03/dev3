@@ -27,7 +27,7 @@ RAG 是 AI 应用岗最高频的考点，也是企业落地最多的场景。这
 
 > 每天 2 小时（工作日）/ 8 小时（周末）。勾选即打卡，可填写当日收获与耗时。
 
-<WeekTasks week="3" />
+<ClientOnly><WeekTasks week="3" /></ClientOnly>
 
 ### 时间分配一览
 
@@ -67,7 +67,7 @@ RAG 是 AI 应用岗最高频的考点，也是企业落地最多的场景。这
 
 ## 记忆卡
 
-<FlashCards week="3" />
+<ClientOnly><FlashCards week="3" /></ClientOnly>
 
 ## 复盘问题
 

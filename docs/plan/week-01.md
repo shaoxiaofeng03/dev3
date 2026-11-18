@@ -27,7 +27,7 @@ description: 2026-11-23 起，P0 地基
 
 > 每天 2 小时（工作日）/ 8 小时（周末）。勾选即打卡，可填写当日收获与耗时。
 
-<WeekTasks week="1" />
+<ClientOnly><WeekTasks week="1" /></ClientOnly>
 
 ### 时间分配一览
 
@@ -68,7 +68,7 @@ description: 2026-11-23 起，P0 地基
 
 ## 记忆卡
 
-<FlashCards week="1" />
+<ClientOnly><FlashCards week="1" /></ClientOnly>
 
 ## 复盘问题
 

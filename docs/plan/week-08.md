@@ -27,7 +27,7 @@ W2 手写了循环，这一周补上工程范式。重点不是多学几个框�
 
 > 这一周按「周目标 + 清单」推进，开始前把清单拆成 7 天。勾选会实时保存，并可通过打卡页同步到 GitHub。
 
-<WeekTasks week="8" />
+<ClientOnly><WeekTasks week="8" /></ClientOnly>
 
 ## 本周交付
 
@@ -53,7 +53,7 @@ W2 手写了循环，这一周补上工程范式。重点不是多学几个框�
 
 ## 记忆卡
 
-<FlashCards week="8" />
+<ClientOnly><FlashCards week="8" /></ClientOnly>
 
 ## 复盘问题
 

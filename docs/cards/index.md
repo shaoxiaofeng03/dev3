@@ -8,7 +8,7 @@ title: 记忆卡
 
 全站共 **106** 张卡片，按周组织。每张卡片的复习间隔由 SM-2 算法根据你的评分自动调整。
 
-<FlashCards />
+<ClientOnly><FlashCards /></ClientOnly>
 
 ## 按周查看
 

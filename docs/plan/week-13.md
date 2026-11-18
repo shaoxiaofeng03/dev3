@@ -27,7 +27,7 @@ description: 2027-02-15 起，P2 Agent
 
 > 这一周按「周目标 + 清单」推进，开始前把清单拆成 7 天。勾选会实时保存，并可通过打卡页同步到 GitHub。
 
-<WeekTasks week="13" />
+<ClientOnly><WeekTasks week="13" /></ClientOnly>
 
 ## 本周交付
 
@@ -47,7 +47,7 @@ description: 2027-02-15 起，P2 Agent
 
 ## 记忆卡
 
-<FlashCards week="13" />
+<ClientOnly><FlashCards week="13" /></ClientOnly>
 
 ## 复盘问题
 

@@ -6,4 +6,5 @@ title: 搜索
 
 中文按子串匹配，支持空格分词（例如「RAG 评测」会同时匹配两个词）。
 
-<SiteSearch />
+<ClientOnly><SiteSearch /></ClientOnly>
+

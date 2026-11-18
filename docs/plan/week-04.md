@@ -27,7 +27,7 @@ description: 2026-12-14 起，P1 RAG
 
 > 每天 2 小时（工作日）/ 8 小时（周末）。勾选即打卡，可填写当日收获与耗时。
 
-<WeekTasks week="4" />
+<ClientOnly><WeekTasks week="4" /></ClientOnly>
 
 ### 时间分配一览
 
@@ -67,7 +67,7 @@ description: 2026-12-14 起，P1 RAG
 
 ## 记忆卡
 
-<FlashCards week="4" />
+<ClientOnly><FlashCards week="4" /></ClientOnly>
 
 ## 复盘问题
 

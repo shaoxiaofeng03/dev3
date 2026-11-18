@@ -6,7 +6,7 @@ title: 打卡
 
 今天的任务、连续天数、热力图、每周完成度都在这一页。勾选任务会**立刻保存在这台设备的浏览器里**；配置 GitHub Token 后可以一键同步到仓库，换设备也能看到。
 
-<CheckinDashboard />
+<ClientOnly><CheckinDashboard /></ClientOnly>
 
 ## 数据存在哪
 
@@ -33,7 +33,7 @@ title: 打卡
 - 手机上首次使用需要重新填一次 Token（Token 只存在那台设备）。
 - 如果不想在手机上放 Token：只勾选不点同步，周日在电脑上统一同步也行——但手机和电脑的记录不会自动合并，需要先「从 GitHub 拉取」。
 
-<GhSettings />
+<ClientOnly><GhSettings /></ClientOnly>
 
 ## 常见问题
 
@@ -46,3 +46,4 @@ title: 打卡
 **Token 会不会泄露？** 会存在于本机浏览器的 localStorage。请使用只授权 `dev3` 仓库、只有 Contents 读写权限的 Fine-grained PAT，并设置过期时间。详见 [配置 GitHub Token](/guide/github-token)。
 
 **不想用 Token？** 可以。把「导出 JSON」的文件下载下来，手动替换仓库里的 `docs/data/checkins.json` 再提交，效果一样，只是麻烦。
+

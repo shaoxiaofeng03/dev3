@@ -10,7 +10,7 @@ title: 第 8 周记忆卡
 
 > 手机上点卡片翻面；按「忘记 / 模糊 / 记得 / 简单」评分，系统按 SM-2 算法安排下次复习。
 
-<FlashCards week="8" />
+<ClientOnly><FlashCards week="8" /></ClientOnly>
 
 ## 卡片清单（快速浏览 / 打印）
 

@@ -27,7 +27,7 @@ W4 已经知道瓶颈在检索。这一周专攻召回与排序，每次只改�
 
 > 这一周按「周目标 + 清单」推进，开始前把清单拆成 7 天。勾选会实时保存，并可通过打卡页同步到 GitHub。
 
-<WeekTasks week="5" />
+<ClientOnly><WeekTasks week="5" /></ClientOnly>
 
 ## 本周交付
 
@@ -52,7 +52,7 @@ W4 已经知道瓶颈在检索。这一周专攻召回与排序，每次只改�
 
 ## 记忆卡
 
-<FlashCards week="5" />
+<ClientOnly><FlashCards week="5" /></ClientOnly>
 
 ## 复盘问题
 

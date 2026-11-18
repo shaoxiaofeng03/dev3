@@ -39,7 +39,7 @@ features:
 
 <div class="home-section">
 
-<TodayPanel />
+<ClientOnly><TodayPanel /></ClientOnly>
 
 ## 三个入口
 
@@ -111,3 +111,4 @@ features:
   }
 }
 </style>
+

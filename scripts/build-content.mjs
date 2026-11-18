@@ -66,14 +66,14 @@ function weekMd(week) {
     lines.push('');
     lines.push('> 这一周按「周目标 + 清单」推进，开始前把清单拆成 7 天。勾选会实时保存，并可通过打卡页同步到 GitHub。');
     lines.push('');
-    lines.push(`<WeekTasks week="${week.n}" />`);
+    lines.push(`<ClientOnly><WeekTasks week="${week.n}" /></ClientOnly>`);
     lines.push('');
   } else {
     lines.push('## 每日安排');
     lines.push('');
     lines.push('> 每天 2 小时（工作日）/ 8 小时（周末）。勾选即打卡，可填写当日收获与耗时。');
     lines.push('');
-    lines.push(`<WeekTasks week="${week.n}" />`);
+    lines.push(`<ClientOnly><WeekTasks week="${week.n}" /></ClientOnly>`);
     lines.push('');
     lines.push('### 时间分配一览');
     lines.push('');
@@ -107,7 +107,7 @@ function weekMd(week) {
   }
   lines.push('## 记忆卡');
   lines.push('');
-  lines.push(`<FlashCards week="${week.n}" />`);
+  lines.push(`<ClientOnly><FlashCards week="${week.n}" /></ClientOnly>`);
   lines.push('');
   if (week.retro?.length) {
     lines.push('## 复盘问题');
@@ -134,7 +134,7 @@ function cardsMd(week) {
   lines.push('');
   lines.push('> 手机上点卡片翻面；按「忘记 / 模糊 / 记得 / 简单」评分，系统按 SM-2 算法安排下次复习。');
   lines.push('');
-  lines.push(`<FlashCards week="${week.n}" />`);
+  lines.push(`<ClientOnly><FlashCards week="${week.n}" /></ClientOnly>`);
   lines.push('');
   lines.push('## 卡片清单（快速浏览 / 打印）');
   lines.push('');
@@ -240,7 +240,7 @@ function cardsIndexMd() {
   lines.push('');
   lines.push(`全站共 **${total}** 张卡片，按周组织。每张卡片的复习间隔由 SM-2 算法根据你的评分自动调整。`);
   lines.push('');
-  lines.push('<FlashCards />');
+  lines.push('<ClientOnly><FlashCards /></ClientOnly>');
   lines.push('');
   lines.push('## 按周查看');
   lines.push('');
@@ -370,4 +370,5 @@ main().catch((err) => {
   console.error('❌ 生成失败：', err);
   process.exit(1);
 });
+
 
