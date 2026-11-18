@@ -40,7 +40,25 @@ title: 配置 GitHub Token
 - 手机丢了 / 换手机：立刻去 GitHub → Settings → Developer settings 撤销这个 Token。
 - 公共电脑上用完，点「清除 Token」。
 
-## 五、常见错误
+## 五、Token 到底存在哪？
+
+**存在你当前访问的这个网址（origin）的浏览器 localStorage 里，不在服务器上。**
+
+GitHub Pages 只是静态文件托管，没有后端，也就没有任何地方能替你保存 Token。所以：
+
+| 你在哪填的 | 存在哪 | 什么时候需要重填 |
+| --- | --- | --- |
+| `https://shaoxiaofeng03.github.io/dev3/checkin` | 这个域名 + 这台设备 + 这个浏览器 | 清缓存、换浏览器、无痕模式、换设备 |
+| `http://localhost:5173/dev3/checkin` | `localhost:5173` | 关掉 dev、换端口、清缓存 |
+
+两个关键结论：
+
+1. **线上和本地是两份数据。** 在 Pages 上填的 Token，本地 `npm run dev` 里读不到，反过来也一样——localStorage 按「协议 + 域名 + 端口」隔离，`localhost:5173` 和 `localhost:4173` 会被当成两个不同的站点。
+2. **本地开发时打卡数据是空的，这是正常的。** 想看到线上记录，在打卡页点「从 GitHub 拉取」：它读的是仓库里的 `docs/data/checkins.json`，和浏览器本地缓存无关。
+
+所以推荐做法是：**平时只用线上地址打卡**，每台设备各填一次 Token；本地只在改站点代码时用。
+
+## 六、常见错误
 
 | 现象 | 原因 | 处理 |
 | --- | --- | --- |
@@ -49,6 +67,6 @@ title: 配置 GitHub Token
 | 404 | owner / repo / branch 写错，或 Token 没勾选该仓库 | 用「测试连接」确认仓库名 |
 | 409 / 422 | 远端文件在编辑期间被改过 | 先「从 GitHub 拉取」，再同步 |
 
-## 六、不想用 Token 的替代方案
+## 七、不想用 Token 的替代方案
 
 每周日把打卡页的「导出 JSON」下载下来，手动替换仓库中的 `docs/data/checkins.json` 并提交。功能完全一致，只是麻烦一点。
