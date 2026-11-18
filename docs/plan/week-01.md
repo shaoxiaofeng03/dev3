@@ -7,7 +7,7 @@ description: 2026-11-23 起，P0 地基
 
 # 第 1 周 · LLM 应用全景 · 环境 · 第一次 API 调用
 
-<div class="week-meta"><span>📅 2026-11-23 ~ 2026-11-29</span><span>⏱ 约 26 小时</span><span>🧭 P0 地基</span><span>🎴 12 张记忆卡</span></div>
+<div class="week-meta"><span>📅 2026-11-23 ~ 2026-11-29</span><span>⏱ 约 26 小时</span><span>🧭 P0 地基</span><span>🎴 20 张记忆卡</span></div>
 
 ## 本周目标
 
