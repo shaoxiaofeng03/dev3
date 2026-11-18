@@ -59,6 +59,14 @@ export const meta = {
   end: '2027-04-11',
   totalWeeks: 20,
   hoursPerWeek: 26,
+  learner: {
+    city: '南京（主投本地，上海 / 杭州作为备选）',
+    stack: 'Java 后端，AI 与 Python 零基础',
+    algo: '零基础，未刷过题（前 6 周按题单从数组起步）',
+    reviewDay: '周日',
+    rhythm: '工作日 2h + 周末每天 8h ≈ 26h/周',
+    goal: '2027 年 4 月拿到 AI 应用 / Agent 开发 offer',
+  },
   weeklyRhythm: [
     { day: '工作日', hours: '2h', detail: '50min 主线 + 25min 算法 + 25min 记忆卡 / 笔记' },
     { day: '周六', hours: '8h', detail: '项目日：上午 4h 实现，下午 4h 测试 / 单测 / 复盘' },

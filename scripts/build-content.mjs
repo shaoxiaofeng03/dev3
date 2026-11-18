@@ -162,6 +162,23 @@ function planIndexMd() {
   lines.push('');
   lines.push(`**${meta.subtitle}**　｜　共 ${meta.totalWeeks} 周　｜　约 ${meta.hoursPerWeek} 小时 / 周`);
   lines.push('');
+  lines.push('## 你的参数');
+  lines.push('');
+  lines.push('| 项 | 取值 |');
+  lines.push('| --- | --- |');
+  const L = meta.learner ?? {};
+  const rows = [
+    ['目标岗位', L.goal],
+    ['技术起点', L.stack],
+    ['目标城市', L.city],
+    ['时间投入', L.rhythm],
+    ['算法基础', L.algo],
+    ['周复盘', L.reviewDay],
+  ];
+  for (const [k, v] of rows) if (v) lines.push(`| ${k} | ${escapeCell(v)} |`);
+  lines.push('');
+  lines.push('> 南京的岗位结构和北上深不一样：B 端、金融科技、电力能源、传统软件占比更高，Java 栈更吃香。具体的公司类型、投递节奏和题单，见 [南京岗位地图](/guide/market-nanjing) 与 [零基础算法题单](/guide/algo)。');
+  lines.push('');
   lines.push('## 这份计划怎么来的');
   lines.push('');
   lines.push(
