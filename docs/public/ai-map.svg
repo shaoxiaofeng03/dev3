@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="1806" viewBox="0 0 720 1806" font-family="'PingFang SC','Microsoft YaHei','Noto Sans SC',system-ui,sans-serif">
+<rect width="720" height="100%" fill="#ffffff"/>
+<text x="44" y="52" font-size="30" font-weight="700" fill="#0f172a">AI 应用技术地图</text>
+<text x="44" y="82" font-size="15" fill="#64748b">从用户看到的产品，到跑在底下的基础设施 · 画于 2026.11</text>
+<rect x="44" y="104" width="632" height="266" rx="16" fill="#6366f10d" stroke="#6366f133"/>
+<text x="62" y="132" font-size="17" font-weight="700" fill="#6366f1">应用层 · 用户看到什么</text>
+<text x="658" y="132" font-size="12" fill="#94a3b8" text-anchor="end">产品形态</text>
+<rect x="44" y="150" width="200" height="54" rx="10" fill="#ffffff" stroke="#6366f155"/>
+<text x="144" y="183" font-size="17" fill="#1e293b" text-anchor="middle">智能客服</text>
+<rect x="260" y="150" width="200" height="54" rx="10" fill="#ffffff" stroke="#6366f155"/>
+<text x="360" y="183" font-size="17" fill="#1e293b" text-anchor="middle">企业知识库</text>
+<rect x="476" y="150" width="200" height="54" rx="10" fill="#ffffff" stroke="#6366f155"/>
+<text x="576" y="183" font-size="17" fill="#1e293b" text-anchor="middle">代码助手</text>
+<rect x="44" y="220" width="200" height="54" rx="10" fill="#ffffff" stroke="#6366f155"/>
+<text x="144" y="253" font-size="17" fill="#1e293b" text-anchor="middle">文档抽取</text>
+<rect x="260" y="220" width="200" height="54" rx="10" fill="#ffffff" stroke="#6366f155"/>
+<text x="360" y="253" font-size="17" fill="#1e293b" text-anchor="middle">数据分析</text>
+<rect x="476" y="220" width="200" height="54" rx="10" fill="#ffffff" stroke="#6366f155"/>
+<text x="576" y="253" font-size="17" fill="#1e293b" text-anchor="middle">流程自动化</text>
+<rect x="152" y="290" width="200" height="54" rx="10" fill="#ffffff" stroke="#6366f155"/>
+<text x="252" y="323" font-size="17" fill="#1e293b" text-anchor="middle">AI 搜索</text>
+<rect x="368" y="290" width="200" height="54" rx="10" fill="#ffffff" stroke="#6366f155"/>
+<text x="468" y="323" font-size="17" fill="#1e293b" text-anchor="middle">嵌入式 Copilot</text>
+<line x1="360" y1="368" x2="360" y2="390" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4 4"/>
+<path d="M 355 385 L 360 391 L 365 385" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+<rect x="44" y="394" width="632" height="266" rx="16" fill="#8b5cf60d" stroke="#8b5cf633"/>
+<text x="62" y="422" font-size="17" font-weight="700" fill="#8b5cf6">编排层 · 谁决定下一步</text>
+<text x="658" y="422" font-size="12" fill="#94a3b8" text-anchor="end">从代码编排到模型自主</text>
+<rect x="44" y="440" width="200" height="54" rx="10" fill="#ffffff" stroke="#8b5cf655"/>
+<text x="144" y="473" font-size="17" fill="#1e293b" text-anchor="middle">Prompt 链</text>
+<rect x="260" y="440" width="200" height="54" rx="10" fill="#ffffff" stroke="#8b5cf655"/>
+<text x="360" y="473" font-size="17" fill="#1e293b" text-anchor="middle">路由分流</text>
+<rect x="476" y="440" width="200" height="54" rx="10" fill="#ffffff" stroke="#8b5cf655"/>
+<text x="576" y="473" font-size="17" fill="#1e293b" text-anchor="middle">并行投票</text>
+<rect x="44" y="510" width="200" height="54" rx="10" fill="#ffffff" stroke="#8b5cf655"/>
+<text x="144" y="543" font-size="17" fill="#1e293b" text-anchor="middle">包工头模式</text>
+<rect x="260" y="510" width="200" height="54" rx="10" fill="#ffffff" stroke="#8b5cf655"/>
+<text x="360" y="543" font-size="17" fill="#1e293b" text-anchor="middle">生成-评审</text>
+<rect x="476" y="510" width="200" height="54" rx="10" fill="#ffffff" stroke="#8b5cf655"/>
+<text x="576" y="543" font-size="17" fill="#1e293b" text-anchor="middle">ReAct 循环</text>
+<rect x="152" y="580" width="200" height="54" rx="10" fill="#ffffff" stroke="#8b5cf655"/>
+<text x="252" y="613" font-size="17" fill="#1e293b" text-anchor="middle">计划-执行</text>
+<rect x="368" y="580" width="200" height="54" rx="10" fill="#ffffff" stroke="#8b5cf655"/>
+<text x="468" y="613" font-size="17" fill="#1e293b" text-anchor="middle">多智能体</text>
+<line x1="360" y1="658" x2="360" y2="680" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4 4"/>
+<path d="M 355 675 L 360 681 L 365 675" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+<rect x="44" y="684" width="632" height="266" rx="16" fill="#0ea5e90d" stroke="#0ea5e933"/>
+<text x="62" y="712" font-size="17" font-weight="700" fill="#0ea5e9">能力层 · 让模型会查、会做、靠谱</text>
+<text x="658" y="712" font-size="12" fill="#94a3b8" text-anchor="end">工程能力</text>
+<rect x="44" y="730" width="200" height="54" rx="10" fill="#ffffff" stroke="#0ea5e955"/>
+<text x="144" y="763" font-size="17" fill="#1e293b" text-anchor="middle">检索 RAG</text>
+<rect x="260" y="730" width="200" height="54" rx="10" fill="#ffffff" stroke="#0ea5e955"/>
+<text x="360" y="763" font-size="17" fill="#1e293b" text-anchor="middle">工具调用</text>
+<rect x="476" y="730" width="200" height="54" rx="10" fill="#ffffff" stroke="#0ea5e955"/>
+<text x="576" y="763" font-size="17" fill="#1e293b" text-anchor="middle">记忆</text>
+<rect x="44" y="800" width="200" height="54" rx="10" fill="#ffffff" stroke="#0ea5e955"/>
+<text x="144" y="833" font-size="17" fill="#1e293b" text-anchor="middle">结构化输出</text>
+<rect x="260" y="800" width="200" height="54" rx="10" fill="#ffffff" stroke="#0ea5e955"/>
+<text x="360" y="833" font-size="17" fill="#1e293b" text-anchor="middle">评测</text>
+<rect x="476" y="800" width="200" height="54" rx="10" fill="#ffffff" stroke="#0ea5e955"/>
+<text x="576" y="833" font-size="17" fill="#1e293b" text-anchor="middle">可观测</text>
+<rect x="152" y="870" width="200" height="54" rx="10" fill="#ffffff" stroke="#0ea5e955"/>
+<text x="252" y="903" font-size="17" fill="#1e293b" text-anchor="middle">护栏安全</text>
+<rect x="368" y="870" width="200" height="54" rx="10" fill="#ffffff" stroke="#0ea5e955"/>
+<text x="468" y="903" font-size="17" fill="#1e293b" text-anchor="middle">缓存成本</text>
+<line x1="360" y1="948" x2="360" y2="970" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4 4"/>
+<path d="M 355 965 L 360 971 L 365 965" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+<rect x="44" y="974" width="632" height="266" rx="16" fill="#10b9810d" stroke="#10b98133"/>
+<text x="62" y="1002" font-size="17" font-weight="700" fill="#10b981">模型层 · 选哪个模型、要不要改它</text>
+<text x="658" y="1002" font-size="12" fill="#94a3b8" text-anchor="end">能力来源</text>
+<rect x="44" y="1020" width="200" height="54" rx="10" fill="#ffffff" stroke="#10b98155"/>
+<text x="144" y="1053" font-size="17" fill="#1e293b" text-anchor="middle">对话模型</text>
+<rect x="260" y="1020" width="200" height="54" rx="10" fill="#ffffff" stroke="#10b98155"/>
+<text x="360" y="1053" font-size="17" fill="#1e293b" text-anchor="middle">推理模型</text>
+<rect x="476" y="1020" width="200" height="54" rx="10" fill="#ffffff" stroke="#10b98155"/>
+<text x="576" y="1053" font-size="17" fill="#1e293b" text-anchor="middle">长上下文</text>
+<rect x="44" y="1090" width="200" height="54" rx="10" fill="#ffffff" stroke="#10b98155"/>
+<text x="144" y="1123" font-size="17" fill="#1e293b" text-anchor="middle">Embedding</text>
+<rect x="260" y="1090" width="200" height="54" rx="10" fill="#ffffff" stroke="#10b98155"/>
+<text x="360" y="1123" font-size="17" fill="#1e293b" text-anchor="middle">Rerank</text>
+<rect x="476" y="1090" width="200" height="54" rx="10" fill="#ffffff" stroke="#10b98155"/>
+<text x="576" y="1123" font-size="17" fill="#1e293b" text-anchor="middle">多模态</text>
+<rect x="152" y="1160" width="200" height="54" rx="10" fill="#ffffff" stroke="#10b98155"/>
+<text x="252" y="1193" font-size="17" fill="#1e293b" text-anchor="middle">小模型</text>
+<rect x="368" y="1160" width="200" height="54" rx="10" fill="#ffffff" stroke="#10b98155"/>
+<text x="468" y="1193" font-size="17" fill="#1e293b" text-anchor="middle">微调 LoRA</text>
+<line x1="360" y1="1238" x2="360" y2="1260" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4 4"/>
+<path d="M 355 1255 L 360 1261 L 365 1255" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+<rect x="44" y="1264" width="632" height="196" rx="16" fill="#f59e0b0d" stroke="#f59e0b33"/>
+<text x="62" y="1292" font-size="17" font-weight="700" fill="#f59e0b">基础设施层 · 跑得稳、跑得省</text>
+<text x="658" y="1292" font-size="12" fill="#94a3b8" text-anchor="end">底座</text>
+<rect x="44" y="1310" width="200" height="54" rx="10" fill="#ffffff" stroke="#f59e0b55"/>
+<text x="144" y="1343" font-size="17" fill="#1e293b" text-anchor="middle">推理服务</text>
+<rect x="260" y="1310" width="200" height="54" rx="10" fill="#ffffff" stroke="#f59e0b55"/>
+<text x="360" y="1343" font-size="17" fill="#1e293b" text-anchor="middle">向量库</text>
+<rect x="476" y="1310" width="200" height="54" rx="10" fill="#ffffff" stroke="#f59e0b55"/>
+<text x="576" y="1343" font-size="17" fill="#1e293b" text-anchor="middle">模型网关</text>
+<rect x="44" y="1380" width="200" height="54" rx="10" fill="#ffffff" stroke="#f59e0b55"/>
+<text x="144" y="1413" font-size="17" fill="#1e293b" text-anchor="middle">队列缓存</text>
+<rect x="260" y="1380" width="200" height="54" rx="10" fill="#ffffff" stroke="#f59e0b55"/>
+<text x="360" y="1413" font-size="17" fill="#1e293b" text-anchor="middle">监控告警</text>
+<rect x="476" y="1380" width="200" height="54" rx="10" fill="#ffffff" stroke="#f59e0b55"/>
+<text x="576" y="1413" font-size="17" fill="#1e293b" text-anchor="middle">GPU 资源</text>
+<line x1="360" y1="1458" x2="360" y2="1480" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4 4"/>
+<path d="M 355 1475 L 360 1481 L 365 1475" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+<rect x="44" y="1484" width="632" height="196" rx="16" fill="#64748b0d" stroke="#64748b33"/>
+<text x="62" y="1512" font-size="17" font-weight="700" fill="#64748b">横切关注点 · 每一层都要管</text>
+<rect x="152" y="1530" width="200" height="54" rx="10" fill="#ffffff" stroke="#64748b55"/>
+<text x="252" y="1563" font-size="17" fill="#1e293b" text-anchor="middle">评测数据飞轮</text>
+<rect x="368" y="1530" width="200" height="54" rx="10" fill="#ffffff" stroke="#64748b55"/>
+<text x="468" y="1563" font-size="17" fill="#1e293b" text-anchor="middle">成本与延迟</text>
+<rect x="152" y="1600" width="200" height="54" rx="10" fill="#ffffff" stroke="#64748b55"/>
+<text x="252" y="1633" font-size="17" fill="#1e293b" text-anchor="middle">安全与合规</text>
+<rect x="368" y="1600" width="200" height="54" rx="10" fill="#ffffff" stroke="#64748b55"/>
+<text x="468" y="1633" font-size="17" fill="#1e293b" text-anchor="middle">权限与审计</text>
+<rect x="44" y="1708" width="632" height="74" rx="12" fill="#f1f5f9" stroke="#e2e8f0"/>
+<text x="62" y="1734" font-size="12.5" fill="#475569">20 周路线：W1–W4 地基 → W5–W7 RAG 工程化 → W8–W13 Agent → W14–W15 Java 集成</text>
+<text x="62" y="1758" font-size="12.5" fill="#94a3b8">读图方法：先认层，再看层间流动，最后把自己现在的位置标上去</text>
+</svg>

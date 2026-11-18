@@ -76,6 +76,7 @@ export default defineConfig({
         text: '指南',
         items: [
           { text: '怎么用这套站点', link: '/guide/how-to-use' },
+          { text: 'AI 技术地图', link: '/guide/ai-map' },
           { text: '南京岗位地图', link: '/guide/market-nanjing' },
           { text: '零基础算法题单', link: '/guide/algo' },
           { text: 'DeepSeek 接入', link: '/guide/deepseek' },
@@ -93,6 +94,7 @@ export default defineConfig({
           text: '指南',
           items: [
             { text: '怎么用这套站点', link: '/guide/how-to-use' },
+            { text: 'AI 技术地图', link: '/guide/ai-map' },
             { text: '南京岗位地图', link: '/guide/market-nanjing' },
             { text: '零基础算法题单', link: '/guide/algo' },
             { text: 'DeepSeek 接入', link: '/guide/deepseek' },

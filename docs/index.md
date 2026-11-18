@@ -59,6 +59,11 @@ features:
     <strong>记忆卡</strong>
     <span>按周组织的背诵卡 + 间隔重复复习</span>
   </a>
+  <a class="entry" href="/dev3/guide/ai-map">
+    <span class="entry-icon">🧭</span>
+    <strong>AI 技术地图</strong>
+    <span>从应用到基建的六层分层图，可放大看</span>
+  </a>
 </div>
 
 ## 这份计划不一样的地方
@@ -74,7 +79,7 @@ features:
 <style>
 .entry-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
   gap: 12px;
   margin: 16px 0 8px;
 }
@@ -111,4 +116,5 @@ features:
   }
 }
 </style>
+
 
