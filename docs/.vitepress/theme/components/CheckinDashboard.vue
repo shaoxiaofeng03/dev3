@@ -11,6 +11,8 @@ import {
   pushToGithub,
   pullFromGithub,
   weekMarkdown,
+  localFile,
+  saveLocalFile,
 } from '../composables/checkins';
 import { ghBusy, ghMessage, ghStatus, hasToken } from '../composables/github';
 import GhSettings from './GhSettings.vue';
@@ -105,6 +107,24 @@ async function copyWeek() {
   }
 }
 
+async function copyCommit() {
+  const cmd = `git add docs/data/checkins.json && git commit -m "chore(checkin): 打卡 ${todayStr()}" && git push`;
+  try {
+    await navigator.clipboard.writeText(cmd);
+    toast('已复制 git 命令');
+  } catch {
+    toast('浏览器不允许剪贴板，请手动复制', 'error');
+  }
+}
+
+async function saveNow() {
+  try {
+    toast(await saveLocalFile());
+  } catch (err) {
+    toast(`保存失败：${err instanceof Error ? err.message : err}`, 'error');
+  }
+}
+
 const entries = computed(() => recentEntries(10));
 const itemCount = (ids: string[]) => (Array.isArray(ids) ? ids.length : 0);
 </script>
@@ -173,6 +193,26 @@ const itemCount = (ids: string[]) => (Array.isArray(ids) ? ids.length : 0);
 
     <h3 class="sec-title">同步与备份</h3>
     <div class="sync-box">
+      <div v-if="localFile.enabled" class="local-mode">
+        <p class="local-title">💾 本地文件模式</p>
+        <p class="local-hint">
+          打卡会自动写入 <code>docs/data/checkins.json</code>，不需要 Token。确认后提交并推送：
+        </p>
+        <div class="local-cmd">
+          <code>git add docs/data/checkins.json &amp;&amp; git commit -m "chore(checkin): 打卡 {{ todayStr() }}" &amp;&amp; git push</code>
+          <button type="button" class="btn" @click="copyCommit">复制命令</button>
+        </div>
+        <div class="local-actions">
+          <button type="button" class="btn" :disabled="localFile.saving" @click="saveNow">
+            {{ localFile.saving ? '保存中…' : '立即保存' }}
+          </button>
+          <span v-if="localFile.error" class="local-status error">写入失败：{{ localFile.error }}</span>
+          <span v-else-if="localFile.saving" class="local-status">正在写入本地文件…</span>
+          <span v-else-if="localFile.savedAt" class="local-status ok">已写入（{{ localFile.savedAt }}）</span>
+          <span v-else-if="localFile.ready" class="local-status">等待打卡…</span>
+        </div>
+      </div>
+
       <div class="sync-actions">
         <button type="button" class="btn primary" :disabled="ghBusy || !hasToken()" @click="push">
           {{ ghBusy ? '处理中…' : '同步到 GitHub' }}
@@ -329,6 +369,56 @@ const itemCount = (ids: string[]) => (Array.isArray(ids) ? ids.length : 0);
 }
 .week-rest summary {
   cursor: pointer;
+}
+.local-mode {
+  margin-bottom: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 12px;
+  background: var(--vp-c-bg-soft);
+  font-size: 13px;
+}
+.local-title {
+  margin: 0 0 6px;
+  font-weight: 600;
+}
+.local-hint {
+  margin: 0 0 8px;
+  color: var(--vp-c-text-2);
+  line-height: 1.6;
+}
+.local-cmd {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.local-cmd code {
+  flex: 1;
+  min-width: 220px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: var(--vp-c-default-soft);
+  font-size: 11.5px;
+  line-height: 1.5;
+  word-break: break-all;
+}
+.local-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.local-status {
+  font-size: 12px;
+  color: var(--vp-c-text-3);
+}
+.local-status.ok {
+  color: #0a7d32;
+}
+.local-status.error {
+  color: #b91c1c;
 }
 .sync-box {
   border: 1px solid var(--vp-c-divider);

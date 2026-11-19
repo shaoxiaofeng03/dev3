@@ -1,5 +1,29 @@
 {
   "version": 1,
   "note": "打卡数据。可手动编辑，格式见 docs/guide/data-format.md",
-  "entries": []
+  "entries": [
+    {
+      "date": "2026-11-23",
+      "items": [
+        "w1d1t1",
+        "w1d1t2",
+        "w1d1t3",
+        "w1d1t4"
+      ],
+      "note": "",
+      "minutes": 135,
+      "retro": "",
+      "updatedAt": "2026-11-18T23:28:24.203Z"
+    },
+    {
+      "date": "2026-11-24",
+      "items": [
+        "w1d2t2"
+      ],
+      "note": "",
+      "minutes": 0,
+      "retro": "",
+      "updatedAt": "2026-11-19T13:20:34.981Z"
+    }
+  ]
 }

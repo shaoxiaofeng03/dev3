@@ -27,7 +27,14 @@ export interface CheckinFile {
 
 const STORE_KEY = 'dev3.checkins.v1';
 const REMOTE_PATH = 'docs/data/checkins.json';
+const LOCAL_API = '/__local/checkins';
+const LOCAL_FILE = 'docs/data/checkins.json';
+const CHECKINS_NOTE = '打卡数据。可手动编辑，格式见 docs/guide/data-format.md';
+const IS_DEV = import.meta.env.DEV;
 const isBrowser = typeof window !== 'undefined';
+
+let localLoad: Promise<void> | null = null;
+let saveChain: Promise<unknown> = Promise.resolve();
 
 function nowIso(): string {
   return new Date().toISOString();
@@ -91,14 +98,30 @@ export const store = reactive<{ entries: Record<string, Entry> }>({
 
 export const loaded = reactive({ value: false });
 
+/** 本地开发模式：打卡页直接读写仓库里的 docs/data/checkins.json */
+export const localFile = reactive({
+  enabled: IS_DEV,
+  ready: false,
+  saving: false,
+  savedAt: '',
+  error: '',
+});
+
 export function initStore(): void {
   if (loaded.value) return;
-  const merged = mergeEntries(readBaseline(), readLocal());
-  for (const e of merged) store.entries[e.date] = e;
+  // 本地 dev 时文件是唯一数据源：先用 localStorage 草稿占位，
+  // 读取文件成功后由 loadLocalFile 覆盖（只有文件为空时才迁移草稿）。
+  const initial = IS_DEV ? readLocal() : mergeEntries(readBaseline(), readLocal());
+  for (const e of initial) store.entries[e.date] = e;
   loaded.value = true;
 }
 
-if (isBrowser) initStore();
+if (isBrowser) {
+  initStore();
+  if (IS_DEV) void loadLocalFile();
+}
+
+let saveTimer: number | undefined;
 
 watch(
   store,
@@ -111,6 +134,14 @@ watch(
       );
     } catch {
       /* 存储配额满时静默失败，不影响使用 */
+    }
+    if (IS_DEV && localFile.ready) {
+      if (saveTimer !== undefined) window.clearTimeout(saveTimer);
+      saveTimer = window.setTimeout(() => {
+        void saveLocalFile().catch(() => {
+          /* 错误已经写进 localFile.error */
+        });
+      }, 300);
     }
   },
   { deep: true }
@@ -279,6 +310,91 @@ export function weekMarkdown(n: number): string {
     lines.push(`- [${mark}] ${item.date} ${item.text}`);
   }
   return lines.join('\n');
+}
+
+function snapshot(): CheckinFile {
+  return {
+    version: 1,
+    note: CHECKINS_NOTE,
+    entries: Object.values(store.entries)
+      .map((e) => normalize(e))
+      .sort((a, b) => a.date.localeCompare(b.date)),
+  };
+}
+
+/** 从 Vite 开发服务器读取仓库里的 checkins.json；文件为空时迁移本地草稿 */
+export function loadLocalFile(): Promise<void> {
+  if (!isBrowser || !IS_DEV) return Promise.resolve();
+  if (localLoad) return localLoad;
+
+  localLoad = (async () => {
+    try {
+      const res = await fetch(LOCAL_API, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`读取本地文件失败（HTTP ${res.status}）`);
+      const data = (await res.json()) as CheckinFile;
+      const fileEntries = Array.isArray(data?.entries)
+        ? data.entries.map((e) => normalize(e))
+        : [];
+      const localEntries = Object.values(store.entries);
+      // 文件是唯一数据源；只有文件还是空的时候，才把 localStorage 草稿迁移进去。
+      const migrate = fileEntries.length === 0 && localEntries.length > 0;
+      const next = migrate ? mergeEntries(fileEntries, localEntries) : fileEntries;
+
+      store.entries = {};
+      for (const e of next) store.entries[e.date] = e;
+      localFile.ready = true;
+      localFile.error = '';
+
+      if (migrate) {
+        await saveLocalFile();
+      }
+    } catch (err) {
+      localFile.error = err instanceof Error ? err.message : String(err);
+      localFile.ready = false;
+    }
+  })();
+
+  return localLoad;
+}
+
+/** 把当前打卡数据写入仓库里的 docs/data/checkins.json（仅开发服务器可用） */
+export function saveLocalFile(): Promise<string> {
+  if (!isBrowser || !IS_DEV) {
+    return Promise.resolve('当前不是本地开发模式，未写入文件');
+  }
+  const task = saveChain.then(() => doSaveLocalFile());
+  saveChain = task.catch(() => undefined);
+  return task;
+}
+
+async function doSaveLocalFile(): Promise<string> {
+  localFile.saving = true;
+  localFile.error = '';
+  try {
+    const res = await fetch(LOCAL_API, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(snapshot()),
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      let message = text;
+      try {
+        const body = JSON.parse(text) as { error?: string };
+        if (body.error) message = body.error;
+      } catch {
+        /* 非 JSON 错误响应，保留原文 */
+      }
+      throw new Error(message || `保存失败（HTTP ${res.status}）`);
+    }
+    localFile.savedAt = new Date().toLocaleTimeString('zh-CN', { hour12: false });
+    return `已写入 ${LOCAL_FILE}`;
+  } catch (err) {
+    localFile.error = err instanceof Error ? err.message : String(err);
+    throw err;
+  } finally {
+    localFile.saving = false;
+  }
 }
 
 export async function pullFromGithub(): Promise<string> {

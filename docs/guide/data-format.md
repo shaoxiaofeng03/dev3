@@ -79,6 +79,7 @@ scripts/build-content.mjs   # 生成 docs/plan/*.md、docs/cards/*.md、docs/dat
 - `items` 是当天完成的 item id 列表。
 - 合并规则：同一 `date` 取 `items` 并集，`note` / `retro` 取 `updatedAt` 较新的非空值，`minutes` 取较大值。
 - 可以直接手改这个文件并提交，站点下次构建会读进来。
+- 本地 `npm run dev` 时，打卡页会直接写这个文件；线上 GitHub Pages 没有写接口，只能通过 Token 同步或导出 JSON 后手动提交。
 
 ## 复习数据 `docs/data/review-state.json`
 

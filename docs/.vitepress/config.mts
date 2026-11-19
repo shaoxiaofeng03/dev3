@@ -2,6 +2,7 @@ import { defineConfig } from 'vitepress';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { localCheckinsPlugin } from './plugins/localCheckins';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.resolve(__dirname, '../data');
@@ -127,6 +128,7 @@ export default defineConfig({
     },
   },
   vite: {
+    plugins: [localCheckinsPlugin(path.join(dataDir, 'checkins.json'))],
     server: {
       host: true,
     },
