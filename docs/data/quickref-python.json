@@ -1,0 +1,426 @@
+{
+  "label": "Python 3",
+  "source": "https://learnxinyminutes.com/zh-cn/python/",
+  "groups": [
+    {
+      "title": "运算符与真值",
+      "note": "Java 迁移第一站：除法、取模、布尔运算",
+      "items": [
+        {
+          "id": "py-01",
+          "kind": "pitfall",
+          "q": "`35 / 5` 的结果是 7 还是 7.0？",
+          "a": "7.0。Python 3 的 `/` 永远返回 float，即使能整除也带 `.0`；要整除用 `//`。Java 里 int/int 是整除，这是迁移第一大坑。",
+          "code": "35 / 5    # 7.0\n10.0 / 3  # 3.3333333333333335\n5 // 3    # 1\n5.0 // 3  # 1.0"
+        },
+        {
+          "id": "py-02",
+          "kind": "pitfall",
+          "q": "`-5 // 3` 等于多少？和 Java 的 `-5 / 3` 一样吗？",
+          "a": "是 -2，不是 -1。`//` 是向下取整（floor），Java 的整数除法是向零取整。正数时看不出差别，负数必踩。",
+          "code": "-5 // 3      # -2\n-5.0 // 3.0  # -2.0\n# Java: -5 / 3 == -1"
+        },
+        {
+          "id": "py-03",
+          "kind": "pitfall",
+          "q": "`-7 % 3` 等于 2 还是 -1？",
+          "a": "2。Python 取模结果的符号跟**除数**一致，Java 跟被除数一致。要还原 Java 语义用 `math.fmod(-7, 3)`。",
+          "code": "-7 % 3   # 2\n7 % -3   # -2\n# Java: -7 % 3 == -1"
+        },
+        {
+          "id": "py-04",
+          "kind": "outline",
+          "q": "`**` 和 `*` 除了乘方还各自能做什么？",
+          "a": "`**` 是幂运算（2**4=16，Java 要 Math.pow）；`*` 还能重复字符串和列表；乘除优先级高于加减。",
+          "code": "2 ** 4       # 16\n'ab' * 3     # 'ababab'\n[0] * 3      # [0, 0, 0]\n1 + 3 * 2    # 7\n(1 + 3) * 2  # 8"
+        },
+        {
+          "id": "py-05",
+          "kind": "pitfall",
+          "q": "`True + True` 是多少？`2 == True` 呢？",
+          "a": "2 和 False。bool 是 int 的子类，True 就是 1、False 是 0，所以能参与算术；但只有 0/1 才与 bool 相等，`2 == True` 是 False。",
+          "code": "True + True    # 2\nTrue * 8       # 8\nFalse - 5      # -5\n0 == False     # True\n1 == True      # True\n2 == True      # False"
+        },
+        {
+          "id": "py-06",
+          "kind": "pitfall",
+          "q": "`0 and 2`、`-5 or 0` 分别返回什么？",
+          "a": "返回 0 和 -5，不是 False / True。`and`/`or` 返回决定结果的那个操作数本身（短路 + 原值返回），Java 的 `&&`/`||` 只能返回 boolean。写条件没问题，拿结果赋值最容易出 bug。",
+          "code": "0 and 2   # 0\n-5 or 0   # -5\nbool(0)   # False\nbool(-6)  # True"
+        },
+        {
+          "id": "py-07",
+          "kind": "pitfall",
+          "q": "`1 < 2 < 3` 能这么写吗？",
+          "a": "能。Python 支持链式比较，等价于 `1 < 2 and 2 < 3`。Java 里这么写直接语法错误。",
+          "code": "1 < 2 < 3   # True\n2 < 3 < 2   # False"
+        },
+        {
+          "id": "py-08",
+          "kind": "pitfall",
+          "q": "`==` 和 `is` 有什么区别？比较 None 该用哪个？",
+          "a": "`==` 比值，`is` 比身份（是不是同一个对象）。None 必须用 `is`：None 是单例。小整数和字符串有驻留机制，`is` 偶尔为 True 只是巧合，不要依赖。",
+          "code": "a = [1, 2, 3]\nb = a          # b is a -> True, b == a -> True\nb = [1, 2, 3]  # b is a -> False, b == a -> True\n\n'etc' is None   # False\nNone is None    # True"
+        },
+        {
+          "id": "py-09",
+          "kind": "pitfall",
+          "q": "哪些值在 if 里是 False？",
+          "a": "None、False、0、0.0、空字符串、空 list/tuple/dict/set、range(0)。判断「有没有值」用 `if not x:`，判断「是不是 None」用 `if x is None:`——两者不能混，否则 0 和空字符串会被误判。"
+        }
+      ]
+    },
+    {
+      "title": "字符串与格式化",
+      "note": "不可变、f-string、避免 O(n²) 拼接",
+      "items": [
+        {
+          "id": "py-10",
+          "kind": "outline",
+          "q": "单引号、双引号、三引号、相邻字面量拼接？",
+          "a": "单双引号完全等价；三引号是跨行字符串（常当多行注释）；相邻字面量在编译期自动拼接。",
+          "code": "'a' == \"a\"          # True\n\"Hello \" \"world!\"   # 'Hello world!'（编译期拼接）\nprint(\"\"\"多行\n文本\"\"\")"
+        },
+        {
+          "id": "py-11",
+          "kind": "outline",
+          "q": "f-string / format / % 三种格式化怎么写？",
+          "a": "f-string 最直观（3.6+），大括号里可放任意表达式；format 适合复用模板（位置、索引、关键字三种）；% 只在兼容老代码时用。",
+          "code": "name = 'Reiko'\nf\"{name} is {len(name)} chars\"   # f-string\n\n'{} can be {}'.format('strings', 'interpolated')\n'{0}-{0}-{1}'.format('a', 'b')\n'{name}'.format(name='Bob')\n\n'%s and %s' % ('a', 'b')"
+        },
+        {
+          "id": "py-12",
+          "kind": "pitfall",
+          "q": "字符串能改某个字符吗？循环里用 `+` 拼字符串有什么问题？",
+          "a": "不能，str 不可变，`s[0] = \"H\"` 抛 TypeError。循环里 `+=` 每次新建字符串，O(n²)；正确做法是 append 到 list，最后 `\"\".join(parts)`。",
+          "code": "parts = []\nfor x in items:\n    parts.append(str(x))\ntext = ''.join(parts)   # O(n)"
+        },
+        {
+          "id": "py-13",
+          "kind": "outline",
+          "q": "长度、取字符、切片、大小写、去空白分别怎么写？",
+          "a": "`len(s)`、`s[0]`、`s[1:3]`、`s.lower()` / `s.upper()`、`s.strip()`。字符串是序列，切片规则和 list 完全一致。"
+        }
+      ]
+    },
+    {
+      "title": "列表 / 元组 / 字典 / 集合",
+      "note": "四种容器 + 切片 + 解包，坑最密集的一段",
+      "items": [
+        {
+          "id": "py-14",
+          "kind": "pitfall",
+          "q": "`(1)` 和 `(1,)` 分别是什么类型？",
+          "a": "`(1)` 是 int（括号只是分组），`(1,)` 才是 tuple。单元素元组少写逗号是经典 bug；空元组 `()` 和 `tuple()` 都行。",
+          "code": "type((1))    # <class 'int'>\ntype((1,))   # <class 'tuple'>\ntype(())     # <class 'tuple'>"
+        },
+        {
+          "id": "py-15",
+          "kind": "pitfall",
+          "q": "`li2 = li[:]` 是深拷贝吗？`b = a` 呢？",
+          "a": "`li[:]` 是浅拷贝：新列表，但元素还是同一批对象，改了嵌套 list 两个都变，真深拷贝用 `copy.deepcopy`。`b = a` 连拷贝都没有，是同一个对象，`b is a` 为 True。",
+          "code": "import copy\nli = [[1], [2]]\nli2 = li[:]          # 浅拷贝\nli2[0].append(9)     # li 也变了！\ndeep = copy.deepcopy(li)\nb = li               # b is li -> True"
+        },
+        {
+          "id": "py-16",
+          "kind": "outline",
+          "q": "列表切片的五种常用写法？",
+          "a": "`li[1:3]` 左闭右开；`li[2:]` 到尾；`li[:3]` 从头；`li[::2]` 隔一个取；`li[::-1]` 反转。完整语法 `li[开始:结束:步长]`，负索引从 -1 开始。",
+          "code": "li = [1, 2, 4, 3]\nli[1:3]   # [2, 4]\nli[2:]    # [4, 3]\nli[:3]    # [1, 2, 4]\nli[::2]   # [1, 4]\nli[::-1]  # [3, 4, 2, 1]\nli[-1]    # 3"
+        },
+        {
+          "id": "py-17",
+          "kind": "pitfall",
+          "q": "`li.remove(2)` 当 2 不存在时会怎样？`pop()` 越界呢？",
+          "a": "remove 抛 ValueError；pop 越界抛 IndexError；`del li[越界]` 也是 IndexError。Java 的 List.remove 返回 boolean 不抛异常，迁移时容易漏 try。",
+          "code": "li = [1, 2, 3]\nli.remove(2)   # 返回 None，li 变 [1, 3]\nli.remove(2)   # ValueError: 2 is not in list\nli[4]          # IndexError"
+        },
+        {
+          "id": "py-18",
+          "kind": "pitfall",
+          "q": "列表能当 dict 的 key 吗？什么能当 key？",
+          "a": "不能。key 必须可哈希（不可变）：int、float、str、tuple；list/dict/set 抛 `TypeError: unhashable type`。value 可以是任意类型，包括 list。",
+          "code": "d = {(1, 2): [1, 2]}   # 合法\nd = {[1, 2]: 'x'}      # TypeError: unhashable type: 'list'"
+        },
+        {
+          "id": "py-19",
+          "kind": "outline",
+          "q": "dict 取值怎么避免 KeyError？",
+          "a": "`get(k)` 不存在返回 None；`get(k, 默认)` 指定默认；`setdefault(k, v)` 只在不存在时写入；`d[k] = v` / `d.update({...})` 赋值；`in` 判断的是 key 不是 value。",
+          "code": "d = {'one': 1}\nd['one']            # 1\nd.get('four')       # None\nd.get('four', 4)    # 4\nd.setdefault('five', 5)  # 写入 5\nd.setdefault('five', 6)  # 仍是 5"
+        },
+        {
+          "id": "py-20",
+          "kind": "pitfall",
+          "q": "`d.keys()` 返回的是列表吗？能下标访问吗？",
+          "a": "是视图对象（dict_keys），可迭代、能 len，但不能下标，`d.keys()[0]` 抛 TypeError，要 `list(d.keys())`。Python 3.7+ 按插入顺序遍历，之前版本无序。"
+        },
+        {
+          "id": "py-21",
+          "kind": "pitfall",
+          "q": "空集合怎么写？`{}` 是什么？",
+          "a": "`{}` 是空字典，不是空集合；空集合必须 `set()`。`{1, 1, 2, 3}` 自动去重成 {1, 2, 3}；集合元素也必须可哈希。",
+          "code": "type({})      # <class 'dict'>\ntype(set())   # <class 'set'>\n{1, 1, 2, 2, 3, 4}  # {1, 2, 3, 4}"
+        },
+        {
+          "id": "py-22",
+          "kind": "outline",
+          "q": "集合的交、并、差、对称差和子集判断怎么写？",
+          "a": "`&` 交、`|` 并、`-` 差、`^` 对称差；`<=` 子集、`>=` 超集；`in` 判断元素。对应 Java 的 retainAll / addAll / removeAll。",
+          "code": "a = {1, 2, 3}; b = {2, 3, 5}\na & b   # {2, 3}\na | b   # {1, 2, 3, 5}\na - b   # {1}\na ^ b   # {1, 5}\n{1, 2} <= {1, 2, 3}  # True"
+        },
+        {
+          "id": "py-23",
+          "kind": "outline",
+          "q": "一行交换变量、解包、星号解包？",
+          "a": "`a, b = b, a` 直接交换；`a, *b, c = (1, 2, 3, 4)` 里 b 收集中间段成列表；元组括号可省。函数返回多值本质就是返回 tuple，调用方自动解包。",
+          "code": "a, b = 1, 2\na, b = b, a              # 交换\na, *b, c = (1, 2, 3, 4)  # a=1, b=[2,3], c=4\nd, e, f = 4, 5, 6        # 括号可省"
+        }
+      ]
+    },
+    {
+      "title": "流程控制与异常",
+      "note": "缩进即语法、try/else/finally",
+      "items": [
+        {
+          "id": "py-24",
+          "kind": "pitfall",
+          "q": "缩进算语法吗？能用 tab 吗？",
+          "a": "算。Python 用缩进划分代码块，没有大括号。约定 4 个空格；同一文件里 tab 和空格混用会抛 TabError / IndentationError。这是从 Java 过来最反直觉的设计。"
+        },
+        {
+          "id": "py-25",
+          "kind": "outline",
+          "q": "if/elif/else 和三元表达式怎么写？",
+          "a": "`elif` 就是 else if；三元表达式是 `\"yay!\" if cond else \"nay!\"`，注意顺序和 Java 的 `cond ? a : b` 相反。",
+          "code": "x = 5\nif x > 10:\n    print('big')\nelif x < 10:\n    print('small')\nelse:\n    print('ten')\n\nresult = 'yay!' if x > 0 else 'nay!'"
+        },
+        {
+          "id": "py-26",
+          "kind": "pitfall",
+          "q": "try/except/else/finally 里的 else 什么时候执行？",
+          "a": "try 块**没有异常**时执行，位置在所有 except 之后、finally 之前；finally 无论如何都执行。只写过 Java 的 try/catch/finally 很容易漏掉 else。",
+          "code": "try:\n    raise IndexError('boom')\nexcept IndexError as e:\n    pass\nexcept (TypeError, NameError):\n    pass\nelse:\n    print('no error')   # 只有不抛异常才走\nfinally:\n    print('always')"
+        },
+        {
+          "id": "py-27",
+          "kind": "pitfall",
+          "q": "for...else / while...else 是干什么的？",
+          "a": "循环**没有被 break 中断**时才执行 else。适合「遍历找元素，找不到就报错」的场景。可读性差、实战少用，但面试常问。",
+          "code": "for x in [1, 2, 3]:\n    if x == 9:\n        break\nelse:\n    print('没找到')   # 正常结束才执行"
+        },
+        {
+          "id": "py-28",
+          "kind": "outline",
+          "q": "for 循环怎么同时拿到索引和值？range 有几种用法？",
+          "a": "`enumerate(seq)` 返回 (索引, 值)，`for i, v in enumerate(animals)`。range 三种：`range(n)`、`range(a, b)`、`range(a, b, step)`，全部左闭右开。",
+          "code": "for i, v in enumerate(['dog', 'cat', 'mouse']):\n    print(i, v)\n\nfor i in range(4):       # 0 1 2 3\nfor i in range(4, 8):    # 4 5 6 7\nfor i in range(4, 8, 2): # 4 6"
+        }
+      ]
+    },
+    {
+      "title": "迭代器与生成器",
+      "note": "只能遍历一次、StopIteration、惰性求值",
+      "items": [
+        {
+          "id": "py-29",
+          "kind": "pitfall",
+          "q": "迭代器能遍历两次吗？",
+          "a": "不能。迭代器记住当前位置，`list(it)` 取完就空了，再 `list(it)` 得到 `[]`。可迭代对象（list、dict、range）能反复遍历，`iter()` 出来的迭代器只能用一次。",
+          "code": "it = iter({'one': 1, 'two': 2}.keys())\nnext(it)    # 'one'\nlist(it)    # ['two']\nlist(it)    # []   ← 已经空了"
+        },
+        {
+          "id": "py-30",
+          "kind": "pitfall",
+          "q": "`next()` 取完最后一个元素后会怎样？",
+          "a": "抛 StopIteration，不是 IndexError。for 循环内部就靠捕获它结束。手动 next 时用 `next(it, 默认值)` 或 try/except 兜住。",
+          "code": "it = iter([1])\nnext(it)         # 1\nnext(it)         # StopIteration\nnext(it, None)   # None  ← 安全写法"
+        },
+        {
+          "id": "py-31",
+          "kind": "outline",
+          "q": "range 是列表吗？`range(1, 900000000)` 会吃 7G 内存吗？",
+          "a": "不会。range 是惰性序列，只记 start/stop/step，不建列表；`list(range(...))` 才会真的撑爆内存。"
+        },
+        {
+          "id": "py-32",
+          "kind": "pitfall",
+          "q": "`d.keys()` 为什么需要 `list()` 包一层？",
+          "a": "因为视图对象不可随机访问，`d.keys()[1]` 抛 TypeError。要下标或可变操作时先转 list；只想遍历或 `len()` 就不必转。"
+        }
+      ]
+    },
+    {
+      "title": "函数",
+      "note": "可变默认参数、作用域、*args/**kwargs",
+      "items": [
+        {
+          "id": "py-33",
+          "kind": "pitfall",
+          "q": "`def f(items=[])` 有什么问题？",
+          "a": "默认值只在函数**定义时**求值一次，之后所有调用共享同一个 list，追加会互相污染。正解：默认写 None，函数里再建。",
+          "code": "# 错误：所有调用共享同一个 list\ndef add(x, items=[]):\n    items.append(x)\n    return items\nadd(1)  # [1]\nadd(2)  # [1, 2]  ← 变了！\n\n# 正确\ndef add(x, items=None):\n    if items is None:\n        items = []\n    items.append(x)\n    return items"
+        },
+        {
+          "id": "py-34",
+          "kind": "pitfall",
+          "q": "函数里 `x = num` 为什么改不到全局的 x？",
+          "a": "函数内赋值会创建局部变量，函数里读到的才是全局值。要改全局必须 `global x` 显式声明；嵌套函数改外层变量用 `nonlocal`。",
+          "code": "x = 5\ndef setX(num):\n    x = num        # 局部变量，全局不变\ndef setGlobalX(num):\n    global x\n    x = num        # 真的改了"
+        },
+        {
+          "id": "py-35",
+          "kind": "outline",
+          "q": "`*args` / `**kwargs` 定义和调用时怎么用？",
+          "a": "定义时 `*args` 收集成 tuple，`**kwargs` 收集成 dict；调用时 `*seq` 展开位置参数、`**d` 展开关键字参数。顺序：位置 → 可变位置 → 关键字 → 可变关键字。",
+          "code": "def all_the_args(*args, **kwargs):\n    print(args)    # (1, 2)\n    print(kwargs)  # {'a': 3, 'b': 4}\n\nall_the_args(1, 2, a=3, b=4)\nall_the_args(*[1, 2], **{'a': 3})"
+        },
+        {
+          "id": "py-36",
+          "kind": "outline",
+          "q": "函数怎么返回多个值？",
+          "a": "`return y, x` 实际返回 tuple，调用方 `x, y = swap(x, y)` 自动解包。Java 得造 DTO 或数组。",
+          "code": "def swap(x, y):\n    return y, x\n\nx, y = swap(1, 2)   # x=2, y=1"
+        },
+        {
+          "id": "py-37",
+          "kind": "outline",
+          "q": "闭包、lambda、map/filter 怎么写？",
+          "a": "函数是一等公民：可赋值、传参、返回；内层函数引用外层变量就是闭包；`lambda` 写单表达式匿名函数；`map`/`filter` 返回迭代器要 `list()` 转，通常直接写推导式更 Pythonic。",
+          "code": "def create_adder(x):\n    def adder(y):\n        return x + y\n    return adder\n\nadd_10 = create_adder(10)   # 闭包\nadd_10(3)                   # 13\n(lambda x: x > 2)(3)        # True\nlist(map(add_10, [1, 2, 3]))        # [11, 12, 13]\n[x for x in [3, 4, 5, 6, 7] if x > 5]  # [6, 7]"
+        },
+        {
+          "id": "py-38",
+          "kind": "pitfall",
+          "q": "把 list 传进函数里修改，函数外会变吗？",
+          "a": "会。传的是对象引用：在函数里 `append`、`d[k]=v`、`s.add()` 会改到原对象；但 `items = items + [x]` 或 `items = [...]` 只是把局部名字重新绑定到新对象，外部不变。「改对象」和「重新赋值」要分清。"
+        }
+      ]
+    },
+    {
+      "title": "模块与导入",
+      "note": "同名文件遮蔽标准库、import * 的风险",
+      "items": [
+        {
+          "id": "py-39",
+          "kind": "pitfall",
+          "q": "项目根目录自己写了个 `math.py`，`import math` 会导入哪个？",
+          "a": "导入你自己的 math.py，标准库被遮蔽——sys.path 里当前目录优先。典型现象是 `AttributeError: module 'math' has no attribute 'sqrt'`。别用标准库/第三方包同名文件。"
+        },
+        {
+          "id": "py-40",
+          "kind": "pitfall",
+          "q": "`from math import *` 有什么问题？",
+          "a": "把模块所有公开名字倒进当前命名空间，可能覆盖内置函数或与别人重名，而且看不出符号从哪来。只在小脚本用，工程里禁止。"
+        },
+        {
+          "id": "py-41",
+          "kind": "outline",
+          "q": "模块的几种导入方式？怎么查模块里有什么？",
+          "a": "`import math`、`from math import ceil, floor`、`import math as m`、`from math import *`（不推荐）。`dir(module)` 列成员；模块就是 .py 文件，被 import 时顶层代码会执行。",
+          "code": "import math\nmath.sqrt(16)        # 4.0\n\nfrom math import ceil, floor\nceil(3.7)            # 4\nfloor(3.7)           # 3\n\nimport math as m\nm.sqrt(16) == math.sqrt(16)   # True\ndir(math)"
+        }
+      ]
+    },
+    {
+      "title": "类与继承",
+      "note": "类属性共享、self、MRO、装饰器",
+      "items": [
+        {
+          "id": "py-42",
+          "kind": "pitfall",
+          "q": "类属性改了，所有实例都跟着变？",
+          "a": "是。类属性是类级别共享，`Human.species = ...` 之后所有实例看到新值；实例属性 `self.x = ...` 才各自独立。别在类体里写可变的类属性（list/dict）当「每个实例的初始值」，会被所有人共享。",
+          "code": "class Human:\n    species = 'H. sapiens'   # 类属性：共享\n    def __init__(self, name):\n        self.name = name     # 实例属性：独立\n\nHuman.species = 'H. neanderthalensis'   # 全体生效\ni.species    # 也随之改变"
+        },
+        {
+          "id": "py-43",
+          "kind": "outline",
+          "q": "`self` 是隐式的吗？`__init__` 什么时候调用？",
+          "a": "不是。实例方法的第一个参数 self 必须显式声明（调用时由解释器自动传入）；`__init__` 在实例化时自动调用。前后双下划线是协议方法（`__str__`、`__repr__`、`__eq__` 等），自己命名别用这种风格。"
+        },
+        {
+          "id": "py-44",
+          "kind": "outline",
+          "q": "`@classmethod`、`@staticmethod`、`@property` 分别什么时候用？",
+          "a": "classmethod 第一个参数是 cls，用于工厂方法或操作类属性；staticmethod 既不绑定实例也不绑定类，纯工具函数；property 把方法伪装成只读属性，配 `@x.setter` / `@x.deleter` 控制赋值与删除。",
+          "code": "class Human:\n    species = 'H. sapiens'\n\n    @classmethod\n    def get_species(cls):\n        return cls.species\n\n    @staticmethod\n    def grunt():\n        return '*grunt*'\n\n    @property\n    def age(self):\n        return self._age\n\n    @age.setter\n    def age(self, v):\n        self._age = v"
+        },
+        {
+          "id": "py-45",
+          "kind": "pitfall",
+          "q": "多继承时 `super()` 调用的是「父类」吗？",
+          "a": "不是，调的是 MRO（方法解析顺序）里的**下一个**类。Batman(Superhero, Bat) 里 `super().__init__` 只走 Superhero，不会走 Bat；要初始化两个父类得显式 `Superhero.__init__(self, ...)` 和 `Bat.__init__(self, ...)`。顺序看 `Class.__mro__`。",
+          "code": "class Batman(Superhero, Bat):\n    def __init__(self, *args, **kwargs):\n        Superhero.__init__(self, 'anonymous', movie=True, *args, **kwargs)\n        Bat.__init__(self, *args, can_fly=False, **kwargs)\n        self.name = 'Sad Affleck'\n\nBatman.__mro__   # Batman → Superhero → Human → Bat → object"
+        },
+        {
+          "id": "py-46",
+          "kind": "outline",
+          "q": "`isinstance` 和 `type` 有什么区别？",
+          "a": "`isinstance(x, A)` 认继承链（子类实例也算），`type(x) is A` 只认精确类型。判断类型优先用 isinstance。",
+          "code": "isinstance(sup, Human)  # True（Superhero 是 Human 子类）\ntype(sup) is Superhero  # True\ntype(sup) is Human      # False"
+        }
+      ]
+    },
+    {
+      "title": "工程与文件",
+      "note": "__main__、open 编码、print/input 默认行为",
+      "items": [
+        {
+          "id": "py-47",
+          "kind": "pitfall",
+          "q": "`if __name__ == '__main__':` 到底防什么？",
+          "a": "防止模块被 import 时执行主流程/测试代码。直接运行时 `__name__` 是 `__main__`，被 import 时是模块名。Java 没有对应机制（main 本身就是入口）。"
+        },
+        {
+          "id": "py-48",
+          "kind": "pitfall",
+          "q": "Windows 上 `open('a.txt')` 读 utf-8 文件为什么乱码？",
+          "a": "open 默认编码跟随系统区域设置，Windows 中文环境通常是 GBK/ANSI。读 utf-8 文件必须显式 `encoding='utf-8'`；写 JSON 还要加 `ensure_ascii=False` 才不出现 \\uXXXX。（Java 的 FileReader 也是同样问题，要指定 Charset。）",
+          "code": "with open('a.txt', encoding='utf-8') as f:\n    text = f.read()\n\nwith open('d.json', 'w', encoding='utf-8') as f:\n    json.dump(data, f, ensure_ascii=False)"
+        },
+        {
+          "id": "py-49",
+          "kind": "outline",
+          "q": "print / input 有哪些默认行为要注意？",
+          "a": "print 默认结尾换行，`end=''` 可改；`input()` 永远返回 str，数字要 `int()` / `float()` 转换，且空输入直接 `int('')` 会 ValueError。",
+          "code": "print('Hello, World', end='!')   # 不换行\n\ns = input('Enter: ')   # 返回 str\nn = int(s)             # 需要转换"
+        }
+      ]
+    },
+    {
+      "title": "高级用法",
+      "note": "生成器、生成器表达式、装饰器、推导式",
+      "items": [
+        {
+          "id": "py-50",
+          "kind": "outline",
+          "q": "`yield` 和 return 的区别？生成器为什么省内存？",
+          "a": "yield 一次吐一个值并挂起，下次 next 从断点继续；不会一次性算出所有结果，所以能处理上亿规模的序列。函数里有 yield 就是生成器函数。",
+          "code": "def double_numbers(iterable):\n    for i in iterable:\n        yield i + i\n\nfor i in double_numbers(range(1, 900000000)):\n    print(i)\n    if i >= 30:\n        break"
+        },
+        {
+          "id": "py-51",
+          "kind": "outline",
+          "q": "生成器表达式和列表推导式怎么选？",
+          "a": "`[x for x in ...]` 立刻建列表；`(x for x in ...)` 是生成器，惰性、只能遍历一次、省内存。数据大或只需遍历一次就用生成器。",
+          "code": "values = (-x for x in [1, 2, 3, 4, 5])\nlist(values)   # [-1, -2, -3, -4, -5]\n\nsquares = [x * x for x in range(5)]      # 列表\nsquares_gen = (x * x for x in range(5))  # 生成器"
+        },
+        {
+          "id": "py-52",
+          "kind": "outline",
+          "q": "装饰器是什么？为什么总配 `@wraps`？",
+          "a": "装饰器把函数当参数、返回新函数，`@beg def say()` 等价 `say = beg(say)`。`@wraps(f)` 保留原函数的 `__name__`/`__doc__`，否则调试和框架反射看到的是 wrapper。",
+          "code": "from functools import wraps\n\ndef beg(fn):\n    @wraps(fn)\n    def wrapper(*args, **kwargs):\n        msg, say_please = fn(*args, **kwargs)\n        return msg + ' Please!' if say_please else msg\n    return wrapper\n\n@beg\ndef say(say_please=False):\n    return 'Can you buy me a beer?', say_please"
+        },
+        {
+          "id": "py-53",
+          "kind": "outline",
+          "q": "集合推导式、字典推导式怎么写？",
+          "a": "`{x for x in 'abcddeef' if x not in 'abc'}` 得到 {'d','e','f'}；`{x: x**2 for x in range(5)}` 得到 {0:0, 1:1, 2:4, 3:9, 4:16}。",
+          "code": "{x for x in 'abcddeef' if x not in 'abc'}  # {'d', 'e', 'f'}\n{x: x**2 for x in range(5)}                  # {0: 0, 1: 1, 2: 4, 3: 9, 4: 16}"
+        }
+      ]
+    }
+  ]
+}

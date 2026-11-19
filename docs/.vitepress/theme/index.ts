@@ -9,6 +9,7 @@ import CheckinDashboard from './components/CheckinDashboard.vue';
 import FlashCards from './components/FlashCards.vue';
 import GhSettings from './components/GhSettings.vue';
 import SiteSearch from './components/SiteSearch.vue';
+import RevealRef from './components/RevealRef.vue';
 
 export default {
   extends: DefaultTheme,
@@ -20,5 +21,6 @@ export default {
     app.component('FlashCards', FlashCards);
     app.component('GhSettings', GhSettings);
     app.component('SiteSearch', SiteSearch);
+    app.component('RevealRef', RevealRef);
   },
 } satisfies Theme;

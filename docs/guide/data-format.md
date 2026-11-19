@@ -4,7 +4,7 @@ title: 数据结构说明
 
 # 数据结构说明
 
-站点里所有内容都来自 `plan/` 下的单一数据源，生成脚本把它们变成页面和 JSON。理解这四个文件就够了。
+站点里所有内容都来自 `plan/` 下的单一数据源，生成脚本把它们变成页面和 JSON；另有几份手写数据（速查清单）直接放在 `docs/data/`。理解这几个文件就够了。
 
 ```
 plan/
@@ -102,6 +102,36 @@ scripts/build-content.mjs   # 生成 docs/plan/*.md、docs/cards/*.md、docs/dat
 - `ease` 是 SM-2 的难度系数，范围约 1.3–3.0。
 - 想彻底重来某张卡：把它从 `cards` 里删掉，或在卡片上点「重置」（会写回 localStorage）。
 
+## 速查数据 `docs/data/quickref-python.json`
+
+供「[Python 易坑点 · 记忆大纲](/guide/python-quickref)」使用：每条一个问题、默认收起答案，点开核对。
+
+```json
+{
+  "label": "Python 3",
+  "source": "https://learnxinyminutes.com/zh-cn/python/",
+  "groups": [
+    {
+      "title": "运算符与真值",
+      "note": "Java 迁移第一站",
+      "items": [
+        {
+          "id": "py-01",
+          "kind": "pitfall",
+          "q": "`35 / 5` 的结果是 7 还是 7.0？",
+          "a": "7.0。Python 3 的 `/` 永远返回 float。",
+          "code": "35 / 5    # 7.0"
+        }
+      ]
+    }
+  ]
+}
+```
+
+- `kind`：`pitfall` → 红色「坑」；`outline` → 蓝色「纲」。
+- `q` 默认展示；`a` 点开才展示，支持 `` `行内代码` `` 与 `**加粗**`；`code` 可选，多行示例用 `\n`。
+- 加新主题：在 `docs/data/` 放一个同结构的 JSON → `theme/composables/quickref.ts` 里挂一行 → 页面里写 `<RevealRef topic="新名字" />`。
+
 ## 生成产物
 
 | 路径 | 来源 | 是否可手改 |
@@ -111,6 +141,7 @@ scripts/build-content.mjs   # 生成 docs/plan/*.md、docs/cards/*.md、docs/dat
 | `docs/data/plan.json` / `cards.json` | 生成 | ❌ 会被覆盖 |
 | `docs/data/checkins.json` | 打卡产生 | ✅ 可手改 |
 | `docs/data/review-state.json` | 复习产生 | ✅ 可手改 |
+| `docs/data/quickref-python.json` | 手写速查数据 | ✅ 可手改 |
 | `docs/guide/*.md`、`docs/checkin.md` | 手写 | ✅ |
 
 ## 想加一周 / 改一周

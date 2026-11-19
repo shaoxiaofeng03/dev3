@@ -298,15 +298,15 @@ else:  # This is optional too.
 
 command = "run"
 
-match command:
-    case "run":
-        print("The robot started to run 🏃‍♂️")
-    case "speak" | "say_hi":  # multiple options (OR pattern)
-        print("The robot said hi 🗣️")
-    case code if command.isdigit():  # conditional
-        print(f"The robot execute code: {code}")
-    case _:  # _ is a wildcard that never fails (like default/else)
-        print("Invalid command ❌")
+# match command:
+#     case "run":
+#         print("The robot started to run 🏃‍♂️")
+#     case "speak" | "say_hi":  # multiple options (OR pattern)
+#         print("The robot said hi 🗣️")
+#     case code if command.isdigit():  # conditional
+#         print(f"The robot execute code: {code}")
+#     case _:  # _ is a wildcard that never fails (like default/else)
+#         print("Invalid command ❌")
 
 
 """
@@ -395,6 +395,7 @@ def create_avg():
 
 
 avg = create_avg()
-avg(3)  # => 3.0
-avg(5)  # (3+5)/2 => 4.0
-avg(7)  # (8+7)/3 => 5.0
+print(avg(3))  # => 3.0
+print(avg(5))  # (3+5)/2 => 4.0
+print(avg(7))  # (8+7)/3 => 5.0
+
