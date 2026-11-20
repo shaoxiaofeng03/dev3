@@ -5,6 +5,7 @@
     python exercises_w1.py
 
 全部通过时打印 10/10。卡住超过 10 分钟再看题目 docstring 里的提示。
+
 不要在第一次就搜答案——手写一遍比看懂十遍有用。
 """
 
@@ -27,9 +28,14 @@ def top_words(text: str, n: int = 3) -> list[tuple[str, int]]:
 
     规则：转小写后按空白切分；次数降序，次数相同按单词字母升序。
 
-    提示：dict 计数 + sorted(key=lambda kv: (-kv[1], kv[0]))[:n]
+    提示：dict 计数 + sorted(key = lambda kv: (-kv[1], kv[0]))[:n]
     """
-    raise NotImplementedError
+
+    key_sum = {}
+    for c in text.lower().split():
+        key_sum[c] = key_sum.get(c, 0) + 1
+
+    return sorted(key_sum.items(), key=lambda kv: (-kv[1], kv[0]))[:n]
 
 
 # ---------------------------------------------------------------- 2. 推导式
@@ -37,8 +43,10 @@ def even_squares(nums: list[int]) -> list[int]:
     """返回所有偶数的平方，保持原顺序。
 
     提示：一行列表推导式，`if x % 2 == 0`。
+    [要放进结果的东西  for x in nums  if 筛选条件]
+    map stream filter
     """
-    raise NotImplementedError
+    return [x * x for x in nums if x % 2 == 0]
 
 
 # ---------------------------------------------------------------- 3. 分组
@@ -47,7 +55,11 @@ def group_by_first_letter(words: list[str]) -> dict[str, list[str]]:
 
     提示：`d.setdefault(k, []).append(w)` 或 `d.setdefault(k, []).append(w)`。
     """
-    raise NotImplementedError
+    d: dict[str, list[str]] = {}
+    for word in words:
+        first = word[:1].lower()
+        d.setdefault(first, []).append(word)
+    return d
 
 
 # ---------------------------------------------------------------- 4. 默认参数
@@ -57,7 +69,13 @@ def add_item(item: str, bucket: list[str] | None = None) -> list[str]:
     提示：默认值写 None，函数里判断后新建列表。这是 Python 最经典的坑：
     默认参数只求值一次，写 `bucket=[]` 会导致所有调用共享同一个列表。
     """
-    raise NotImplementedError
+    if bucket is not None:
+        bucket.append(item)
+    else:
+        bucket = []
+        bucket.append(item)
+
+    return bucket
 
 
 # ---------------------------------------------------------------- 5. zip
@@ -66,7 +84,7 @@ def pair_sums(a: list[int], b: list[int]) -> list[int]:
 
     提示：`[x + y for x, y in zip(a, b)]`
     """
-    raise NotImplementedError
+    return [x + y for x, y in zip(a, b)]
 
 
 # ---------------------------------------------------------------- 6. 排序
@@ -75,16 +93,22 @@ def sort_records(records: list[dict]) -> list[dict]:
 
     提示：`sorted(records, key=lambda r: (-r["age"], r["name"]))`
     """
-    raise NotImplementedError
+    # return sorted(records, key=lambda r: (-r["age"], r["name"]))
+    return sorted(records, key=lambda kv: (-kv["age"], kv["name"]))
 
 
 # ---------------------------------------------------------------- 7. 文本统计
 def count_lines_and_words(text: str) -> tuple[int, int]:
     """返回 (非空行数, 单词数)。单词按空白切分。
-
     提示：`text.splitlines()` + 逐行 `if line.strip()`；单词用 sum(len(l.split()) ...)。
     """
-    raise NotImplementedError
+    row_sum = 0
+    word_sum = 0
+    for line in text.splitlines():
+        if line.strip():
+            row_sum = row_sum + 1
+            word_sum = word_sum + len(line.split())
+    return (row_sum, word_sum)
 
 
 # ---------------------------------------------------------------- 8. 异常
@@ -93,7 +117,10 @@ def safe_int(value, default: int = 0) -> int:
 
     提示：try/except (TypeError, ValueError)。注意 int("3.5") 也会抛 ValueError。
     """
-    raise NotImplementedError
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
 
 
 # ---------------------------------------------------------------- 9. 生成器
@@ -102,7 +129,10 @@ def fib(n: int):
 
     提示：a, b = 1, 1；循环 n 次，每次 yield a，然后 a, b = b, a + b。
     """
-    raise NotImplementedError
+    a, b = 1, 1
+    for _ in range(n):
+        yield a
+        a, b = b, b + a
 
 
 # ---------------------------------------------------------------- 10. dataclass
@@ -115,14 +145,17 @@ class TokenUsage:
 
     def total(self) -> int:
         """总 token 数。"""
-        raise NotImplementedError
+        return self.prompt_tokens + self.completion_tokens
 
     def cost(self, prompt_price_per_m: float, completion_price_per_m: float) -> float:
         """按「每百万 token 单价」计算费用，返回美元。
 
         例：1000 prompt + 500 completion，单价 0.15 / 0.6 → 0.00045
         """
-        raise NotImplementedError
+        return (
+            self.prompt_tokens / 1_000_000 * prompt_price_per_m
+            + self.completion_tokens / 1_000_000 * completion_price_per_m
+        )
 
 
 # ================================================================ 测试

@@ -21,7 +21,7 @@ print(-5 // 3)  # -2     商的整数部分（向下取整）
 print(-7 % 3)  # 2
 print(7 % 3)  # 1
 print(-7 / 3)  # -2.3333333333333335
-print(-7 // 3)  # -3，地板除得出商，被除数-（除数 * 商）= 余数
+print(-7 // 3)  # -3，地板除得出商，被除数-（除数 * 商）= 余数,
 
 # Enforce precedence with parentheses
 1 + 3 * 2  # => 7
@@ -398,4 +398,3 @@ avg = create_avg()
 print(avg(3))  # => 3.0
 print(avg(5))  # (3+5)/2 => 4.0
 print(avg(7))  # (8+7)/3 => 5.0
-
