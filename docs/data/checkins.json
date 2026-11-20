@@ -18,12 +18,14 @@
     {
       "date": "2026-11-24",
       "items": [
-        "w1d2t2"
+        "w1d2t2",
+        "w1d2t3",
+        "w1d2t1"
       ],
       "note": "",
-      "minutes": 0,
+      "minutes": 10,
       "retro": "",
-      "updatedAt": "2026-11-19T13:20:34.981Z"
+      "updatedAt": "2026-11-20T06:58:05.012Z"
     }
   ]
 }
