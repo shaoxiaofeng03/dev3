@@ -28,6 +28,13 @@ const items = computed(() => {
 });
 const doneCount = computed(() => items.value.filter((i) => doneSet.value.has(i.id)).length);
 const day = computed(() => week.value.days?.find((d) => d.date === today));
+const latestLog = computed(() => {
+  const entry = store.entries[today];
+  if (!entry) return undefined;
+  if (entry.logs.length) return entry.logs[entry.logs.length - 1];
+  if (entry.note) return { tag: 'idea' as const, text: entry.note, at: '' };
+  return undefined;
+});
 const studyLink = computed(() => {
   if (isWeekly.value) return withBase(`/study/week-${pad2(week.value.n)}`);
   const idx = week.value.days?.findIndex((d) => d.date === today) ?? -1;
@@ -89,7 +96,12 @@ const countdown = computed(() => {
           </label>
         </li>
       </ul>
-      <p v-if="store.entries[today]?.note" class="today-note">📝 {{ store.entries[today]?.note }}</p>
+      <p v-if="latestLog" class="today-note">
+        💬 {{ latestLog.text }}
+        <span v-if="(store.entries[today]?.logs.length ?? 0) > 1" class="today-note-more">
+          共 {{ store.entries[today]?.logs.length }} 条
+        </span>
+      </p>
     </template>
 
     <div v-else-if="inPlan" class="today-empty">
@@ -203,6 +215,11 @@ const countdown = computed(() => {
   background: var(--vp-c-bg);
   border-radius: 8px;
   padding: 8px 10px;
+}
+.today-note-more {
+  margin-left: 6px;
+  font-size: 11px;
+  color: var(--vp-c-text-3);
 }
 .today-empty p {
   margin: 8px 0;

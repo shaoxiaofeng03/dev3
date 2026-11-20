@@ -10,12 +10,32 @@ import {
   GhError,
 } from './github';
 
+export type LogTag = 'harvest' | 'blocker' | 'idea';
+
+/** 标签只影响颜色和周日汇总，不拆字段。 */
+export const LOG_TAGS: Record<LogTag, string> = {
+  harvest: '收获',
+  blocker: '卡点',
+  idea: '想法',
+};
+
+export interface DayLog {
+  id: string;
+  at: string;
+  tag: LogTag;
+  text: string;
+}
+
 export interface Entry {
   date: string;
   items: string[];
+  /** 旧版单条笔记：仍会作为「旧记录」显示，新记录不再写入。 */
   note?: string;
+  /** 旧版实际耗时：只保留历史数据，不再展示或编辑。 */
   minutes?: number;
   retro?: string;
+  /** 当日追加式记录（评论流）。 */
+  logs: DayLog[];
   updatedAt: string;
 }
 
@@ -40,6 +60,35 @@ function nowIso(): string {
   return new Date().toISOString();
 }
 
+function makeId(): string {
+  return `l_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+/** 缺 id / 时间的历史数据给一个稳定兜底，避免每次加载都生成新 id 造成重复。 */
+function fallbackId(at: string, text: string): string {
+  let hash = 0;
+  for (let i = 0; i < text.length; i += 1) {
+    hash = (hash * 31 + text.charCodeAt(i)) | 0;
+  }
+  return `l_${Date.parse(at) || 0}_${Math.abs(hash).toString(36)}`;
+}
+
+function normalizeLog(raw: unknown): DayLog | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const log = raw as Partial<DayLog>;
+  const text = typeof log.text === 'string' ? log.text.trim() : '';
+  if (!text) return null;
+  const at = typeof log.at === 'string' && log.at ? log.at : nowIso();
+  const tag: LogTag =
+    log.tag === 'harvest' || log.tag === 'blocker' || log.tag === 'idea' ? log.tag : 'idea';
+  return {
+    id: typeof log.id === 'string' && log.id ? log.id : fallbackId(at, text),
+    at,
+    tag,
+    text,
+  };
+}
+
 function normalize(entry: Partial<Entry> & { date: string }): Entry {
   return {
     date: entry.date,
@@ -47,6 +96,9 @@ function normalize(entry: Partial<Entry> & { date: string }): Entry {
     note: entry.note ?? '',
     minutes: Number.isFinite(entry.minutes) ? Number(entry.minutes) : 0,
     retro: entry.retro ?? '',
+    logs: Array.isArray(entry.logs)
+      ? entry.logs.map(normalizeLog).filter((log): log is DayLog => Boolean(log))
+      : [],
     updatedAt: entry.updatedAt || nowIso(),
   };
 }
@@ -62,12 +114,15 @@ export function mergeEntries(a: Entry[], b: Entry[]): Entry[] {
       continue;
     }
     const newer = e.updatedAt >= prev.updatedAt ? e : prev;
+    const logMap = new Map<string, DayLog>();
+    for (const log of [...prev.logs, ...e.logs]) logMap.set(log.id, log);
     map.set(e.date, {
       date: e.date,
       items: [...new Set([...prev.items, ...e.items])],
       note: newer.note || prev.note || e.note || '',
       retro: newer.retro || prev.retro || e.retro || '',
       minutes: Math.max(prev.minutes ?? 0, e.minutes ?? 0),
+      logs: [...logMap.values()].sort((x, y) => x.at.localeCompare(y.at)),
       updatedAt: newer.updatedAt,
     });
   }
@@ -161,7 +216,15 @@ export function isDone(itemId: string): boolean {
 
 function upsert(date: string): Entry {
   if (!store.entries[date]) {
-    store.entries[date] = { date, items: [], note: '', minutes: 0, retro: '', updatedAt: nowIso() };
+    store.entries[date] = {
+      date,
+      items: [],
+      note: '',
+      minutes: 0,
+      retro: '',
+      logs: [],
+      updatedAt: nowIso(),
+    };
   }
   return store.entries[date];
 }
@@ -198,6 +261,22 @@ export function setRetro(date: string, retro: string): void {
 export function setMinutes(date: string, minutes: number): void {
   const e = upsert(date);
   e.minutes = Number(minutes) || 0;
+  e.updatedAt = nowIso();
+}
+
+/** 追加一条当日记录。 */
+export function addLog(date: string, text: string, tag: LogTag = 'idea'): void {
+  const value = text.trim();
+  if (!value) return;
+  const e = upsert(date);
+  e.logs.push({ id: makeId(), at: nowIso(), tag, text: value });
+  e.updatedAt = nowIso();
+}
+
+export function removeLog(date: string, id: string): void {
+  const e = store.entries[date];
+  if (!e) return;
+  e.logs = e.logs.filter((log) => log.id !== id);
   e.updatedAt = nowIso();
 }
 
@@ -276,7 +355,7 @@ export function heatmapRange(start: string, end: string): HeatCell[] {
 
 export function recentEntries(limit = 12): Entry[] {
   return Object.values(store.entries)
-    .filter((e) => e.items.length || e.note || e.retro)
+    .filter((e) => e.items.length || e.note || e.retro || e.logs.length)
     .sort((a, b) => b.date.localeCompare(a.date))
     .slice(0, limit);
 }
@@ -302,7 +381,7 @@ export function weekMarkdown(n: number): string {
   const lines = [
     `## 第 ${w.n} 周打卡 · ${w.start} ~ ${w.end}`,
     '',
-    `完成 ${stats.done}/${stats.total}（${stats.percent}%），投入 ${Math.round(stats.minutes / 6) / 10} 小时`,
+    `完成 ${stats.done}/${stats.total}（${stats.percent}%）`,
     '',
   ];
   for (const item of allWeeksItems.get(n) ?? []) {

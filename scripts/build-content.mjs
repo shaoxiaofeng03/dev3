@@ -132,12 +132,18 @@ function dayStudyMd(week, day, index) {
   lines.push('## 收尾');
   lines.push('');
   lines.push(`- 回到[第 ${week.n} 周计划](/plan/week-${n2(week.n)})勾选今天的任务。`);
-  lines.push('- 写一句今天的收获或卡点，方便周日复盘。');
+  lines.push('- 在下方「今日记录」记一句收获或卡点，方便周日复盘。');
   if (index < (week.days?.length ?? 0) - 1) {
     lines.push(`- 明天：[W${week.n} ${weekdayOf(week.days[index + 1].date)} · ${week.days[index + 1].focus}](/study/w${n2(week.n)}d${index + 2})`);
   } else {
     lines.push(`- 下周：[第 ${week.n + 1} 周学习文档](/study/${week.n + 1 <= 4 ? `w${n2(week.n + 1)}d1` : `week-${n2(week.n + 1)}`})`);
   }
+  lines.push('');
+  lines.push('## 今日记录');
+  lines.push('');
+  lines.push('> 学完随手记一条：收获 / 卡点 / 想法，可追加多条；周日复盘会自动汇总本周的卡点。');
+  lines.push('');
+  lines.push(`<ClientOnly><DayLog date="${day.date}" /></ClientOnly>`);
   lines.push('');
   return lines.join('\n');
 }
@@ -263,7 +269,7 @@ function weekMd(week) {
   } else {
     lines.push('## 每日安排');
     lines.push('');
-    lines.push('> 每天 2 小时（工作日）/ 8 小时（周末）。勾选即打卡，可填写当日收获与耗时。每天的知识点、资料与自检见「学习」列。');
+    lines.push('> 每天 2 小时（工作日）/ 8 小时（周末）。勾选即打卡；当天的收获与卡点在学习页底部追加，周页面只读展示。每天的知识点、资料与自检见「学习」列。');
     lines.push('');
     lines.push(`<ClientOnly><WeekTasks week="${week.n}" /></ClientOnly>`);
     lines.push('');
@@ -305,9 +311,14 @@ function weekMd(week) {
     lines.push('## 复盘问题');
     lines.push('');
     for (const q of week.retro) lines.push(`- ${q}`);
-    lines.push('> 周日晚用 30 分钟写进打卡页的「本周复盘」。');
     lines.push('');
   }
+  lines.push('## 本周复盘');
+  lines.push('');
+  lines.push('> 周日晚花 30 分钟：下方会自动汇总本周的每日记录和卡点，填完保存即可。');
+  lines.push('');
+  lines.push(`<ClientOnly><WeekReview week="${week.n}" /></ClientOnly>`);
+  lines.push('');
   lines.push(`[← 返回 20 周总览](/plan/)　|　[第 ${week.n} 周记忆卡](/cards/week-${n2(week.n)})`);
   lines.push('');
   return lines.join('\n');

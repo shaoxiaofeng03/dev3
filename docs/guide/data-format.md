@@ -74,9 +74,23 @@ scripts/build-content.mjs   # 生成 docs/plan/*.md、docs/cards/*.md、docs/stu
     {
       "date": "2026-11-24",
       "items": ["w1d2t1", "w1d2t2"],
-      "note": "今天卡在 pydantic 校验",
-      "minutes": 130,
+      "logs": [
+        {
+          "id": "l_abc123",
+          "at": "2026-11-24T08:20:00.000Z",
+          "tag": "blocker",
+          "text": "可变默认参数没吃透"
+        },
+        {
+          "id": "l_def456",
+          "at": "2026-11-24T10:05:00.000Z",
+          "tag": "harvest",
+          "text": "推导式≈stream 的 map/filter"
+        }
+      ],
       "retro": "",
+      "note": "",
+      "minutes": 0,
       "updatedAt": "2026-11-24T14:32:00.000Z"
     }
   ]
@@ -85,7 +99,10 @@ scripts/build-content.mjs   # 生成 docs/plan/*.md、docs/cards/*.md、docs/stu
 
 - `date` 是**任务所属日期**（不是打卡动作发生的时间），所以补做也会记在原本那天。
 - `items` 是当天完成的 item id 列表。
-- 合并规则：同一 `date` 取 `items` 并集，`note` / `retro` 取 `updatedAt` 较新的非空值，`minutes` 取较大值。
+- `logs` 是当日追加式记录（评论流）：`tag` 为 `harvest`（收获）/ `blocker`（卡点）/ `idea`（想法），`at` 是写入时间，展示时按本地时区显示 `HH:mm`。同一天可以有多条。
+- `note` / `minutes` 是旧字段：`note` 仍会显示为「旧记录」，`minutes` 不再展示或编辑，保留只为兼容历史数据。
+- 周复盘写在**周日那条**的 `retro` 里，格式为 `① 最大卡点：…` / `② 下周只改一件事：…` / `③ 本周最值钱认知：…` 三行。
+- 合并规则：同一 `date` 取 `items` 并集、`logs` 按 `id` 并集，`note` / `retro` 取 `updatedAt` 较新的非空值。
 - 可以直接手改这个文件并提交，站点下次构建会读进来。
 - 本地 `npm run dev` 时，打卡页会直接写这个文件；线上 GitHub Pages 没有写接口，只能通过 Token 同步或导出 JSON 后手动提交。
 

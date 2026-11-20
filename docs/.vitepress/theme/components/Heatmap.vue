@@ -81,7 +81,7 @@ const selectedEntry = computed(() => (selected.value ? store.entries[selected.va
                   type="button"
                   class="hm-cell"
                   :class="[level(cell.count), { active: selected === cell.date, future: cell.isFuture }]"
-                  :title="`${cell.date} · 完成 ${cell.count} 项 · ${cell.minutes} 分钟`"
+                  :title="`${cell.date} · 完成 ${cell.count} 项`"
                   @click="pick(cell.date)"
                 ></button>
               </template>
@@ -93,8 +93,12 @@ const selectedEntry = computed(() => (selected.value ? store.entries[selected.va
 
     <div class="hm-foot">
       <span v-if="selected" class="hm-detail">
-        {{ selected }} · 完成 {{ selectedEntry?.items.length ?? 0 }} 项 · 记录 {{ selectedEntry?.minutes ?? 0 }} 分钟
-        <template v-if="selectedEntry?.note"> · {{ selectedEntry.note.slice(0, 40) }}</template>
+        {{ selected }} · 完成 {{ selectedEntry?.items.length ?? 0 }} 项
+        <template v-if="selectedEntry?.logs.length">
+           · {{ selectedEntry.logs.length }} 条记录 ·
+          {{ selectedEntry.logs[selectedEntry.logs.length - 1].text.slice(0, 40) }}
+        </template>
+        <template v-else-if="selectedEntry?.note"> · {{ selectedEntry.note.slice(0, 40) }}</template>
       </span>
       <span v-else class="hm-detail muted">点格子看当天记录</span>
       <span class="hm-legend">少 <i class="hm-cell l0"></i><i class="hm-cell l1"></i><i class="hm-cell l2"></i><i class="hm-cell l3"></i><i class="hm-cell l4"></i> 多</span>

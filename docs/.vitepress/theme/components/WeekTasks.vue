@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import { withBase } from 'vitepress';
 import { weekByNo, weekdayName, todayStr, pad2, type DayPlan } from '../composables/plan';
-import { store, toggleItem, setNote, setMinutes, doneSet, weekStats } from '../composables/checkins';
+import { store, toggleItem, setNote, doneSet, weekStats } from '../composables/checkins';
 
 const props = defineProps<{ week: string | number }>();
 
@@ -18,8 +18,10 @@ function onNote(date: string, e: Event) {
   setNote(date, (e.target as HTMLTextAreaElement).value);
 }
 
-function onMinutes(date: string, e: Event) {
-  setMinutes(date, Number((e.target as HTMLInputElement).value));
+function logCount(date: string): number {
+  const entry = store.entries[date];
+  if (!entry) return 0;
+  return entry.logs.length + (entry.note?.trim() ? 1 : 0);
 }
 
 function checkAll() {
@@ -49,7 +51,6 @@ function progressLabel(n: number, total: number) {
         </div>
         <span class="wk-num">
           已完成 <strong>{{ stats.done }}</strong> / {{ stats.total }}（{{ stats.percent }}%）
-          <template v-if="stats.minutes"> · 记录 {{ (stats.minutes / 60).toFixed(1) }}h</template>
         </span>
       </div>
       <div class="wk-actions">
@@ -95,24 +96,11 @@ function progressLabel(n: number, total: number) {
         </ul>
         <p class="day-output">{{ day.output }}</p>
         <details class="day-note">
-          <summary>✍️ 记录收获 / 卡点 / 实际耗时</summary>
-          <textarea
-            :value="store.entries[day.date]?.note ?? ''"
-            rows="2"
-            placeholder="今天学到什么？哪一步卡住了？明天怎么调？"
-            @input="onNote(day.date, $event)"
-          ></textarea>
-          <label class="min-row">
-            实际耗时
-            <input
-              type="number"
-              min="0"
-              step="15"
-              :value="store.entries[day.date]?.minutes ?? 0"
-              @input="onMinutes(day.date, $event)"
-            />
-            分钟
-          </label>
+          <summary>
+            💬 今日记录
+            <span v-if="logCount(day.date)" class="log-count">{{ logCount(day.date) }}</span>
+          </summary>
+          <DayLog :date="day.date" readonly />
         </details>
       </section>
     </template>
@@ -328,6 +316,17 @@ function progressLabel(n: number, total: number) {
 .day-note summary::-webkit-details-marker {
   display: none;
 }
+.log-count {
+  display: inline-block;
+  min-width: 16px;
+  margin-left: 4px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--vp-c-default-soft);
+  color: var(--vp-c-text-2);
+  font-size: 10.5px;
+  text-align: center;
+}
 .day-note textarea {
   width: 100%;
   margin-top: 8px;
@@ -339,22 +338,6 @@ function progressLabel(n: number, total: number) {
   font-size: 13px;
   font-family: inherit;
   resize: vertical;
-}
-.min-row {
-  display: inline-flex;
-  gap: 8px;
-  align-items: center;
-  margin-top: 8px;
-  font-size: 12px;
-  color: var(--vp-c-text-2);
-}
-.min-row input {
-  width: 80px;
-  padding: 4px 8px;
-  border-radius: 6px;
-  border: 1px solid var(--vp-c-divider);
-  background: var(--vp-c-bg);
-  color: var(--vp-c-text-1);
 }
 @media (max-width: 640px) {
   .day {

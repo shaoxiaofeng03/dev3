@@ -13,6 +13,7 @@ import {
   weekMarkdown,
   localFile,
   saveLocalFile,
+  LOG_TAGS,
 } from '../composables/checkins';
 import { ghBusy, ghMessage, ghStatus, hasToken } from '../composables/github';
 import GhSettings from './GhSettings.vue';
@@ -31,7 +32,10 @@ const startedWeeks = computed(() =>
   weekRows.value.filter((w) => w.start <= todayStr() || w.stats.done > 0)
 );
 
-const hours = computed(() => (overview.value.totalMinutes / 60).toFixed(1));
+function timeOf(at: string): string {
+  const date = new Date(at);
+  return `${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
+}
 
 function toast(msg: string, status: 'ok' | 'error' | 'idle' = 'ok') {
   localMsg.value = msg;
@@ -141,10 +145,6 @@ const itemCount = (ids: string[]) => (Array.isArray(ids) ? ids.length : 0);
         <span class="stat-label">累计完成任务</span>
       </div>
       <div class="stat">
-        <span class="stat-num">{{ hours }}<em>h</em></span>
-        <span class="stat-label">记录投入时长</span>
-      </div>
-      <div class="stat">
         <span class="stat-num">{{ overview.activeDays }}</span>
         <span class="stat-label">有记录的天数</span>
       </div>
@@ -239,10 +239,17 @@ const itemCount = (ids: string[]) => (Array.isArray(ids) ? ids.length : 0);
           <strong>{{ e.date }}</strong>
           <span class="recent-meta">
             {{ itemCount(e.items) }} 项
-            <template v-if="e.minutes"> · {{ e.minutes }} 分钟</template>
+            <template v-if="e.logs.length"> · {{ e.logs.length }} 条记录</template>
           </span>
         </div>
         <p v-if="e.note" class="recent-note">{{ e.note }}</p>
+        <ul v-if="e.logs.length" class="recent-logs">
+          <li v-for="log in e.logs.slice(-3)" :key="log.id">
+            <span class="rlog-time">{{ timeOf(log.at) }}</span>
+            <span class="rtag" :class="log.tag">{{ LOG_TAGS[log.tag] }}</span>
+            <span class="rlog-text">{{ log.text }}</span>
+          </li>
+        </ul>
         <p v-if="e.retro" class="recent-retro">复盘：{{ e.retro }}</p>
       </div>
       <p v-if="!entries.length" class="muted">还没有记录。勾选任意一个任务，这里就会出现今天的打卡。</p>
@@ -256,7 +263,7 @@ const itemCount = (ids: string[]) => (Array.isArray(ids) ? ids.length : 0);
 }
 .stats {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
   margin: 14px 0;
 }
@@ -508,6 +515,48 @@ const itemCount = (ids: string[]) => (Array.isArray(ids) ? ids.length : 0);
 }
 .recent-retro {
   color: var(--vp-c-text-3);
+}
+.recent-logs {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+}
+.recent-logs li {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+  margin-top: 3px;
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+.rlog-time {
+  flex: none;
+  font-size: 11px;
+  color: var(--vp-c-text-3);
+  font-family: var(--vp-font-family-mono, monospace);
+}
+.rtag {
+  flex: none;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 10.5px;
+}
+.rtag.harvest {
+  color: #15803d;
+  background: rgba(34, 197, 94, 0.16);
+}
+.rtag.blocker {
+  color: #b91c1c;
+  background: rgba(239, 68, 68, 0.16);
+}
+.rtag.idea {
+  color: var(--vp-c-text-2);
+  background: var(--vp-c-default-soft);
+}
+.rlog-text {
+  flex: 1;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 .muted {
   color: var(--vp-c-text-3);
