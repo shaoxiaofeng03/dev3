@@ -4,7 +4,9 @@ title: DeepSeek 接入指南
 
 # DeepSeek 接入指南
 
-计划里所有 API 调用都用 DeepSeek。原因很实际：中文效果好、OpenAI 兼容（一套代码可换模型）、单价低、支持工具调用和 JSON 输出——够你把 20 周的项目全部跑完。
+计划里所有 **chat** 调用都用 DeepSeek。原因很实际：中文效果好、OpenAI 兼容（一套代码可换模型）、单价低、支持工具调用和 JSON 输出——够你把 20 周的项目全部跑完。
+
+RAG 需要的 **embedding / rerank** 不在这个 chat 接口里，单独配置：默认本地 bge-m3 + Chroma，详见 [embedding 与 rerank 接入](/guide/embedding)。
 
 > 下面的模型名、价格、上下文长度以 2026-11 官方文档为准，DeepSeek 调价和换模型比较频繁，动手前先看一眼 [Models & Pricing](https://api-docs.deepseek.com/quick_start/pricing)。
 

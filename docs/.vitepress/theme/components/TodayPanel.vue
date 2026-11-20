@@ -4,6 +4,7 @@ import { withBase } from 'vitepress';
 import {
   currentWeek,
   todayItems,
+  flatItems,
   todayStr,
   weekdayName,
   weekOfDate,
@@ -17,9 +18,21 @@ import { doneSet, toggleItem, overview, store } from '../composables/checkins';
 const today = todayStr();
 const week = computed(() => currentWeek(today));
 const inPlan = computed(() => isTodayInPlan(today));
-const items = computed(() => (inPlan.value ? todayItems(week.value, today) : []));
+const isWeekly = computed(() => !week.value.days?.length);
+const items = computed(() => {
+  if (!inPlan.value) return [];
+  const dayItems = todayItems(week.value, today);
+  if (dayItems.length) return dayItems;
+  // 周粒度周次没有每日任务：直接展示本周清单，避免「今天没有排任务」的误导
+  return isWeekly.value ? flatItems(week.value) : [];
+});
 const doneCount = computed(() => items.value.filter((i) => doneSet.value.has(i.id)).length);
 const day = computed(() => week.value.days?.find((d) => d.date === today));
+const studyLink = computed(() => {
+  if (isWeekly.value) return withBase(`/study/week-${pad2(week.value.n)}`);
+  const idx = week.value.days?.findIndex((d) => d.date === today) ?? -1;
+  return idx >= 0 ? withBase(`/study/w${pad2(week.value.n)}d${idx + 1}`) : '';
+});
 
 const countdown = computed(() => {
   if (inPlan.value) return '';
@@ -37,7 +50,10 @@ const countdown = computed(() => {
           第 {{ week.n }} 周 · {{ week.theme }}
         </h3>
       </div>
-      <a class="today-link" :href="withBase(`/plan/week-${pad2(week.n)}`)">本周计划 →</a>
+      <div class="today-links">
+        <a class="today-link" :href="withBase(`/plan/week-${pad2(week.n)}`)">本周计划 →</a>
+        <a v-if="studyLink" class="today-link" :href="studyLink">学习文档 →</a>
+      </div>
     </div>
 
     <div v-if="!inPlan" class="today-empty">
@@ -55,7 +71,9 @@ const countdown = computed(() => {
         <span :style="{ width: (doneCount / items.length) * 100 + '%' }"></span>
       </div>
       <p class="today-meta">
-        {{ day?.focus }} · 计划 {{ day?.hours ?? 2 }}h · 完成 {{ doneCount }}/{{ items.length }}
+        <template v-if="isWeekly">本周清单 · 任意天完成</template>
+        <template v-else>{{ day?.focus }} · 计划 {{ day?.hours ?? 2 }}h</template>
+        · 完成 {{ doneCount }}/{{ items.length }}
         <template v-if="overview.streak"> · 连续打卡 {{ overview.streak }} 天</template>
       </p>
       <ul class="today-list">
@@ -109,6 +127,12 @@ const countdown = computed(() => {
   line-height: 1.4;
   border: none;
   padding: 0;
+}
+.today-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
 }
 .today-link {
   font-size: 12.5px;

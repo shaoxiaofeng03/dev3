@@ -21,6 +21,8 @@ title: 零基础算法题单
 | 编码 | 15 min | 写不出来就看题解，看懂后自己重写 |
 | 复盘 | 5 min | 记一句：这题的「套路名」+ 我卡在哪 |
 
+**题单是队列，不是周配额。** 每周的标题只是主题分组，按顺序做，做不完就顺延到下一周。周末可以用 60 分钟做 2–3 题，但不要用周末补工作日的全部欠账——欠账优先放在周末的缓冲时段。
+
 ## 三、W1：数组与复杂度（8 题）
 
 | # | 题目 | 难度 | 备注 |
@@ -49,7 +51,7 @@ title: 零基础算法题单
 | 9 | [找到字符串中所有字母异位词](https://leetcode.cn/problems/find-all-anagrams-in-a-string/) | 中 | 定长窗口 |
 | 10 | [最小覆盖子串](https://leetcode.cn/problems/minimum-window-substring/) | 难 | 选做，窗口模板的终极形态 |
 
-## 五、W3：链表、栈队列、二叉树（14 题）
+## 五、W3：链表、栈与队列（10 题）
 
 | # | 题目 | 难度 | 备注 |
 | --- | --- | --- | --- |
@@ -62,39 +64,34 @@ title: 零基础算法题单
 | 7 | [每日温度](https://leetcode.cn/problems/daily-temperatures/) | 中 | 单调栈 |
 | 8 | [逆波兰表达式求值](https://leetcode.cn/problems/evaluate-reverse-polish-notation/) | 中 | 栈的应用 |
 | 9 | [用队列实现栈](https://leetcode.cn/problems/implement-stack-using-queues/) | 易 | 结构转换 |
-| 10 | [字符串解码](https://leetcode.cn/problems/decode-string/) | 中 | 双栈 |
-| 11 | [二叉树的最大深度](https://leetcode.cn/problems/maximum-depth-of-binary-tree/) | 易 | 递归 |
-| 12 | [翻转二叉树](https://leetcode.cn/problems/invert-binary-tree/) | 易 | 递归 |
-| 13 | [对称二叉树](https://leetcode.cn/problems/symmetric-tree/) | 易 | 双指针递归 |
-| 14 | [二叉树的层序遍历](https://leetcode.cn/problems/binary-tree-level-order-traversal/) | 中 | BFS 模板 |
+| 10 | [字符串解码](https://leetcode.cn/problems/decode-string/) | 中 | 双栈（选做） |
 
-> 进阶（有余力再做）：路径总和、二叉树展开为链表、从前序与中序遍历构造二叉树、二叉树的最近公共祖先。
-
-## 六、W4：二分、贪心、DP 入门（12 题）
+## 六、W4：二叉树与二分（10 题必做 + 2 题选做）
 
 | # | 题目 | 难度 | 备注 |
 | --- | --- | --- | --- |
-| 1 | [二分查找](https://leetcode.cn/problems/binary-search/) | 易 | 区间写法要固定一种 |
-| 2 | [搜索插入位置](https://leetcode.cn/problems/search-insert-position/) | 易 | 边界 |
-| 3 | [搜索旋转排序数组](https://leetcode.cn/problems/search-in-rotated-sorted-array/) | 中 | 二分的变体 |
-| 4 | [寻找旋转排序数组中的最小值](https://leetcode.cn/problems/find-minimum-in-rotated-sorted-array/) | 中 | 同上 |
-| 5 | [跳跃游戏](https://leetcode.cn/problems/jump-game/) | 中 | 贪心：维护最远可达 |
-| 6 | [跳跃游戏 II](https://leetcode.cn/problems/jump-game-ii/) | 中 | 贪心：层数 |
-| 7 | [爬楼梯](https://leetcode.cn/problems/climbing-stairs/) | 易 | DP 入门 |
-| 8 | [打家劫舍](https://leetcode.cn/problems/house-robber/) | 中 | 状态转移 |
-| 9 | [最长递增子序列](https://leetcode.cn/problems/longest-increasing-subsequence/) | 中 | O(n²) 先写对 |
-| 10 | [合并区间](https://leetcode.cn/problems/merge-intervals/) | 中 | 排序 + 合并 |
-| 11 | [插入区间](https://leetcode.cn/problems/insert-interval/) | 中 | 分类讨论 |
-| 12 | [不同路径](https://leetcode.cn/problems/unique-paths/) | 中 | 二维 DP |
+| 1 | [二叉树的最大深度](https://leetcode.cn/problems/maximum-depth-of-binary-tree/) | 易 | 递归 |
+| 2 | [翻转二叉树](https://leetcode.cn/problems/invert-binary-tree/) | 易 | 递归 |
+| 3 | [对称二叉树](https://leetcode.cn/problems/symmetric-tree/) | 易 | 双指针递归 |
+| 4 | [二叉树的层序遍历](https://leetcode.cn/problems/binary-tree-level-order-traversal/) | 中 | BFS 模板 |
+| 5 | [路径总和](https://leetcode.cn/problems/path-sum/) | 易 | 递归回溯 |
+| 6 | [二叉树的最近公共祖先](https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-tree/) | 中 | 后序遍历 |
+| 7 | [从前序与中序遍历序列构造二叉树](https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-inorder-traversal/) | 中 | 递归 + 索引 |
+| 8 | [二分查找](https://leetcode.cn/problems/binary-search/) | 易 | 区间写法要固定一种 |
+| 9 | [搜索插入位置](https://leetcode.cn/problems/search-insert-position/) | 易 | 边界 |
+| 10 | [搜索旋转排序数组](https://leetcode.cn/problems/search-in-rotated-sorted-array/) | 中 | 二分的变体 |
+| 11 | [二叉树展开为链表](https://leetcode.cn/problems/flatten-binary-tree-to-linked-list/) | 中 | 选做 |
+| 12 | [寻找旋转排序数组中的最小值](https://leetcode.cn/problems/find-minimum-in-rotated-sorted-array/) | 中 | 选做 |
 
-## 七、W5–W6：排序、回溯、DP 巩固
+## 七、W5–W6：贪心、区间、回溯、DP
 
-计划进入 RAG 阶段后，算法时间不变，但题目换成「复习 + 模板化」：
+计划进入 RAG 阶段后，算法时间不变，但题目换成「新题 + 模板化复习」：
 
-- **排序**：颜色分类、数组中的第 K 个最大元素、前 K 个高频元素
-- **二分**：在排序数组中查找元素的第一个和最后一个位置、x 的平方根、搜索二维矩阵
-- **回溯**：全排列、子集、组合总和、电话号码的字母组合
-- **DP**：零钱兑换、单词拆分、最长公共子序列、最长回文子串（编辑距离选做）
+- **W5**：排序 3 题（颜色分类、数组中的第 K 个最大元素、前 K 个高频元素）+ 回溯 2 题（全排列、子集）
+- **W6**：回溯 2 题（组合总和、电话号码的字母组合）+ DP 4 题（爬楼梯、打家劫舍、零钱兑换、单词拆分）+ 区间 2 题（合并区间、插入区间）
+- **选做**：跳跃游戏、跳跃游戏 II、最长递增子序列、不同路径、最长公共子序列、最长回文子串（编辑距离选做）
+
+> 从 W7 开始，如果题单的必做已能不看答案写出，算法降到每周 3 次维持手感；否则继续每周 5 次，优先重做错题。
 
 ## 八、错题本怎么记
 

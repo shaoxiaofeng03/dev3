@@ -1,7 +1,7 @@
 ---
 title: 第 10 周记忆卡
 ---
-<!-- 本页由 scripts/build-content.mjs 自动生成，请勿直接编辑。改 plan/ 下的数据源后重新运行 pnpm content -->
+<!-- 本页由 scripts/build-content.mjs 自动生成，请勿直接编辑。改 plan/ 下的数据源后重新运行 npm run content -->
 
 
 # 第 10 周记忆卡

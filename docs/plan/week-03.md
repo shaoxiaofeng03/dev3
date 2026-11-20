@@ -2,7 +2,7 @@
 title: 第 3 周 · 向量检索 · 切分 · 最小可用 RAG
 description: 2026-12-07 起，P0 地基
 ---
-<!-- 本页由 scripts/build-content.mjs 自动生成，请勿直接编辑。改 plan/ 下的数据源后重新运行 pnpm content -->
+<!-- 本页由 scripts/build-content.mjs 自动生成，请勿直接编辑。改 plan/ 下的数据源后重新运行 npm run content -->
 
 
 # 第 3 周 · 向量检索 · 切分 · 最小可用 RAG
@@ -25,21 +25,21 @@ RAG 是 AI 应用岗最高频的考点，也是企业落地最多的场景。这
 
 ## 每日安排
 
-> 每天 2 小时（工作日）/ 8 小时（周末）。勾选即打卡，可填写当日收获与耗时。
+> 每天 2 小时（工作日）/ 8 小时（周末）。勾选即打卡，可填写当日收获与耗时。每天的知识点、资料与自检见「学习」列。
 
 <ClientOnly><WeekTasks week="3" /></ClientOnly>
 
 ### 时间分配一览
 
-| 日期 | 星期 | 时长 | 重点 | 当日交付 |
-| --- | --- | --- | --- | --- |
-| 2026-12-07 | 周一 | 2h | embedding 原理与选型 | similarity_lab.py + 3 组「字面不像但语义近」的例子 |
-| 2026-12-08 | 周二 | 2h | 切分策略与元数据设计 | chunks.jsonl + 一页切分策略对比表 |
-| 2026-12-09 | 周三 | 2h | 向量库：选型与本地跑起来 | docker-compose.yml + qdrant_crud.py 跑通 |
-| 2026-12-10 | 周四 | 2h | 检索质量：top-k、阈值、混合检索 | 三种检索方式的召回对比表 |
-| 2026-12-11 | 周五 | 2h | RAG 生成：上下文拼装、引用、拒答 | 带引用与拒答的 prompt 模板 |
-| 2026-12-12 | 周六 | 8h | 端到端最小 RAG + 20 条评测问题 | rag_min.py 可端到端回答 + 20 条评测记录 |
-| 2026-12-13 | 周日 | 8h | 评测归因 + 项目一立项 | RAG 错误归因报告 + 项目一立项文档 |
+| 日期 | 星期 | 时长 | 重点 | 当日交付 | 学习 |
+| --- | --- | --- | --- | --- | --- |
+| 2026-12-07 | 周一 | 2h | embedding 原理与选型 | similarity_lab.py + 3 组「字面不像但语义近」的例子 | [打开](/study/w03d1) |
+| 2026-12-08 | 周二 | 2h | 切分策略与元数据设计 | chunks.jsonl + 一页切分策略对比表 | [打开](/study/w03d2) |
+| 2026-12-09 | 周三 | 2h | 向量库：选型与本地跑起来 | chroma_crud.py + 本地持久化目录跑通 | [打开](/study/w03d3) |
+| 2026-12-10 | 周四 | 2h | 检索质量：top-k、阈值、混合检索 | 三种检索方式的召回对比表 | [打开](/study/w03d4) |
+| 2026-12-11 | 周五 | 2h | RAG 生成：上下文拼装、引用、拒答 | 带引用与拒答的 prompt 模板 | [打开](/study/w03d5) |
+| 2026-12-12 | 周六 | 8h | 端到端最小 RAG + 20 条评测问题 | rag_min.py 可端到端回答 + 20 条评测记录 | [打开](/study/w03d6) |
+| 2026-12-13 | 周日 | 8h | 评测归因 + 项目一立项 | RAG 错误归因报告 + 项目一立项文档 | [打开](/study/w03d7) |
 
 ## 本周交付
 
@@ -61,9 +61,13 @@ RAG 是 AI 应用岗最高频的考点，也是企业落地最多的场景。这
 
 ## 参考资料
 
-- [Qdrant 文档](https://qdrant.tech/documentation/)
+- [Chroma 文档（本地向量库）](https://docs.trychroma.com/)
+- [BGE-M3 模型卡](https://huggingface.co/BAAI/bge-m3)
+- [sentence-transformers 文档](https://sbert.net/)
+- [embedding 与 rerank 接入指南（本站）](https://shaoxiaofeng03.github.io/dev3/guide/embedding)
 - [RAG 综述（arXiv 2312.10997）](https://arxiv.org/abs/2312.10997)
 - [RAGAS 评测框架](https://docs.ragas.io/)
+- [Qdrant 文档（对比选型用）](https://qdrant.tech/documentation/)
 
 ## 记忆卡
 

@@ -43,6 +43,28 @@ const cardsSidebar = [
   },
 ];
 
+const studySidebar = [
+  { text: '学习文档总览', link: '/study/' },
+  ...plan.phases.map((phase) => ({
+    text: phase.name,
+    collapsed: false,
+    items: plan.weeks
+      .filter((w) => w.n >= phase.weeks[0] && w.n <= phase.weeks[1])
+      .map((w) =>
+        w.detail === false
+          ? { text: `W${w.n} · ${shortTheme(w.theme)}`, link: `/study/week-${pad(w.n)}` }
+          : {
+              text: `W${w.n} · ${shortTheme(w.theme)}`,
+              collapsed: true,
+              items: (w.days ?? []).map((d: { focus: string }, i: number) => ({
+                text: `D${i + 1} ${d.focus}`,
+                link: `/study/w${pad(w.n)}d${i + 1}`,
+              })),
+            }
+      ),
+  })),
+];
+
 export default defineConfig({
   base: '/dev3/',
   lang: 'zh-CN',
@@ -70,6 +92,7 @@ export default defineConfig({
     darkModeSwitchLabel: '主题',
     nav: [
       { text: '总览', link: '/plan/' },
+      { text: '学习', link: '/study/' },
       { text: '打卡', link: '/checkin' },
       { text: '记忆卡', link: '/cards/' },
       { text: '搜索', link: '/search' },
@@ -82,6 +105,7 @@ export default defineConfig({
           { text: '零基础算法题单', link: '/guide/algo' },
           { text: 'Python 速查', link: '/guide/python-quickref' },
           { text: 'DeepSeek 接入', link: '/guide/deepseek' },
+          { text: 'embedding 与 rerank', link: '/guide/embedding' },
           { text: '配置 GitHub Token', link: '/guide/github-token' },
           { text: '数据结构说明', link: '/guide/data-format' },
           { text: '部署到 GitHub Pages', link: '/guide/deploy' },
@@ -91,6 +115,7 @@ export default defineConfig({
     sidebar: {
       '/plan/': planSidebar,
       '/cards/': cardsSidebar,
+      '/study/': studySidebar,
       '/guide/': [
         {
           text: '指南',
@@ -101,6 +126,7 @@ export default defineConfig({
             { text: '零基础算法题单', link: '/guide/algo' },
             { text: 'Python 速查', link: '/guide/python-quickref' },
             { text: 'DeepSeek 接入', link: '/guide/deepseek' },
+            { text: 'embedding 与 rerank', link: '/guide/embedding' },
             { text: '配置 GitHub Token', link: '/guide/github-token' },
             { text: '数据结构说明', link: '/guide/data-format' },
             { text: '部署到 GitHub Pages', link: '/guide/deploy' },

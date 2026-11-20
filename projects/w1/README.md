@@ -6,11 +6,12 @@
 
 | 时间 | 做什么 |
 | --- | --- |
-| 20 min | 读《Learn Python in Y minutes》和下面那张对照表，只求「见过」 |
-| 20 min | 打开 `exercises_w1.py`，从第 1 题开始写，卡住就看该题 docstring 的提示 |
-| 10 min | 跑 `python exercises_w1.py`，看哪题红，改到全绿 |
-| 30 min | 把 10 题里最不顺手的 2 题重写一遍（不看之前的代码） |
-| 20 min | 记三张卡（w1-c1 ~ w1-c4 里挑），写一句今天最反直觉的点 |
+| 25 min | 算法：数组 1 题（移动零），双指针原地交换 |
+| 45 min | 读《Learn Python in Y minutes》和下面那张对照表，只求「见过」 |
+| 35 min | 打开 `exercises_w1.py`，从第 1 题开始写，卡住就看该题 docstring 的提示；跑 `python exercises_w1.py`，看哪题红，改到 10/10 |
+| 15 min | 记 w1-c1 ~ w1-c4，写一句今天最反直觉的点 |
+
+> 本机是 Python 3.13；如果装了多个版本，先确认 `python --version` 再跑。总计 120 分钟，和当天的计划任务一致。
 
 **不要先看完整教程再动手。** 边写边查，遇到不会的语法再回文档，这样 2 小时能真正写出东西。
 

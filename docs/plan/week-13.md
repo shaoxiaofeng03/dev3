@@ -2,7 +2,7 @@
 title: 第 13 周 · 项目二收尾：评测、部署、文档与简历段落
 description: 2027-02-15 起，P2 Agent
 ---
-<!-- 本页由 scripts/build-content.mjs 自动生成，请勿直接编辑。改 plan/ 下的数据源后重新运行 pnpm content -->
+<!-- 本页由 scripts/build-content.mjs 自动生成，请勿直接编辑。改 plan/ 下的数据源后重新运行 npm run content -->
 
 
 # 第 13 周 · 项目二收尾：评测、部署、文档与简历段落
@@ -25,9 +25,18 @@ description: 2027-02-15 起，P2 Agent
 
 ## 本周清单
 
-> 这一周按「周目标 + 清单」推进，开始前把清单拆成 7 天。勾选会实时保存，并可通过打卡页同步到 GitHub。
+> 本周学习指南：[第 13 周学习文档](/study/week-13)。这一周按「周目标 + 清单」推进，开始前把清单拆成 7 天。勾选会实时保存，并可通过打卡页同步到 GitHub。
 
 <ClientOnly><WeekTasks week="13" /></ClientOnly>
+
+## 每日固定节奏
+
+> 不随本周主题变化，按工作日 2h / 周末 8h 执行：
+
+- 25 分钟算法：W1–W6 按[题单](/guide/algo)推进；W7 起每周至少 3 次，错题优先。
+- 15–25 分钟记忆卡：当天到期 + 本周卡；周日做一次周测。
+- 工作日 50 分钟主线；周末按本周清单推进。
+- 每天结束写一句记录：学到什么 / 卡在哪 / 明天怎么调。
 
 ## 本周交付
 
@@ -44,6 +53,11 @@ description: 2027-02-15 起，P2 Agent
 
 - 你的 Agent 怎么保证可控？
 - 成本和延迟是多少？怎么优化？
+
+## 参考资料
+
+- [The Twelve-Factor App（中文）](https://12factor.net/zh_cn/)
+- [OpenAI Evals（评测参考）](https://github.com/openai/evals)
 
 ## 记忆卡
 

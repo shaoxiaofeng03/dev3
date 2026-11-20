@@ -49,6 +49,11 @@ features:
     <strong>20 周路线图</strong>
     <span>阶段划分、每周目标、每日任务与交付物</span>
   </a>
+  <a class="entry" href="/dev3/study/">
+    <span class="entry-icon">📖</span>
+    <strong>学习文档</strong>
+    <span>每天的知识点、阅读顺序、动手与自检</span>
+  </a>
   <a class="entry" href="/dev3/checkin">
     <span class="entry-icon">✅</span>
     <strong>打卡与进度</strong>

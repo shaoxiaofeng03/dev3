@@ -12,6 +12,7 @@
 | 常见问题 | 这里的做法 |
 | --- | --- |
 | 收藏了几十套教程，不知道今天该干什么 | 20 周 × 每天 2 小时的具体任务，勾选即打卡 |
+| 知道做什么，但不知道读什么 | W1–W4 每天一页学习文档，W5–W20 每周一页学习指南（知识点 + 资料 + 自检） |
 | 学完就忘 | 每周 6 张左右记忆卡，SM-2 间隔重复，手机可翻 |
 | 做了很多 demo，面试讲不出深度 | 两个深项目（RAG、Agent）+ 一个 Java 企业级项目，每个都有评测数据和失败案例 |
 | 转 AI 就得丢掉 Java 经验 | 用 Spring AI / LangChain4j 做差异化，Java 后端经验是资产 |
@@ -24,7 +25,9 @@
 ├── plan/                        # 唯一内容数据源
 │   ├── index.mjs                # 元信息、阶段、20 周合并
 │   ├── weeks-01-04.mjs          # 第 1–4 周：每日细化
-│   └── weeks-05-20.mjs          # 第 5–20 周：周粒度 + 清单
+│   ├── weeks-05-20.mjs          # 第 5–20 周：周粒度 + 清单
+│   ├── study-01-04.mjs          # 第 1–4 周：每日学习文档（讲义级）
+│   └── study-05-20.mjs          # 第 5–20 周：每周学习指南（导航级）
 ├── scripts/build-content.mjs    # 生成 md 页面与 plan/cards JSON
 ├── docs/
 │   ├── .vitepress/              # 站点配置与主题组件
@@ -34,6 +37,7 @@
 │   │       └── composables/     # 打卡状态、SM-2、GitHub API
 │   ├── plan/                    # 生成：20 个周页面
 │   ├── cards/                   # 生成：20 个记忆卡页面
+│   ├── study/                   # 生成：28 个每日 + 16 个每周学习文档
 │   ├── data/                    # plan.json / cards.json / checkins.json
 │   ├── guide/                   # 手写：使用指南
 │   ├── index.md                 # 首页
@@ -52,7 +56,7 @@ npm run build    # 构建到 docs/.vitepress/dist
 npm run preview  # 预览构建产物
 ```
 
-修改内容：编辑 `plan/*.mjs` → `npm run content` → 刷新。
+修改内容：编辑 `plan/*.mjs`（计划、学习文档、记忆卡都在这里）→ `npm run content` → 刷新。
 
 ## 打卡与记忆卡
 

@@ -61,7 +61,7 @@ function progressLabel(n: number, total: number) {
 
     <template v-if="w.days?.length">
       <section
-        v-for="day in w.days"
+        v-for="(day, dayIndex) in w.days"
         :key="day.date"
         class="day"
         :class="{ 'is-today': day.date === today, weekend: day.kind === 'weekend' }"
@@ -72,6 +72,7 @@ function progressLabel(n: number, total: number) {
           <span v-if="day.date === today" class="day-today">今天</span>
           <span class="day-hours">{{ day.hours }}h</span>
           <span class="day-count">{{ progressLabel(dayDone(day), day.tasks.length) }}</span>
+          <a class="day-study" :href="withBase(`/study/w${pad2(Number(w.n))}d${dayIndex + 1}`)">学习 →</a>
         </header>
         <p class="day-focus">{{ day.focus }}</p>
         <ul class="tasks">
@@ -121,6 +122,7 @@ function progressLabel(n: number, total: number) {
         <header class="day-head">
           <span class="day-wd">本周清单</span>
           <span class="day-date">{{ w.start.slice(5) }} 起</span>
+          <a class="day-study" :href="withBase(`/study/week-${pad2(Number(w.n))}`)">学习指南 →</a>
         </header>
         <p class="day-focus">按清单推进，开始前把它们拆到 7 天里</p>
         <ul class="tasks">
@@ -248,6 +250,13 @@ function progressLabel(n: number, total: number) {
 .day-count {
   margin-left: 0;
   color: var(--vp-c-brand-1);
+}
+.day-study {
+  margin-left: 10px;
+  font-size: 12px;
+  color: var(--vp-c-brand-1);
+  text-decoration: none;
+  white-space: nowrap;
 }
 .day-focus {
   margin: 6px 0 8px;

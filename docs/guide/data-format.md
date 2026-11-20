@@ -10,8 +10,10 @@ title: 数据结构说明
 plan/
 ├── index.mjs          # 元信息、阶段划分、20 周合并
 ├── weeks-01-04.mjs    # 前 4 周：每日细化
-└── weeks-05-20.mjs    # 后 16 周：周粒度 + 清单
-scripts/build-content.mjs   # 生成 docs/plan/*.md、docs/cards/*.md、docs/data/*.json
+├── weeks-05-20.mjs    # 后 16 周：周粒度 + 清单
+├── study-01-04.mjs    # 前 4 周：每日学习文档（讲义级）
+└── study-05-20.mjs    # 后 16 周：每周学习指南（导航级）
+scripts/build-content.mjs   # 生成 docs/plan/*.md、docs/cards/*.md、docs/study/*.md、docs/data/*.json
 ```
 
 ## 周对象字段
@@ -46,6 +48,12 @@ scripts/build-content.mjs   # 生成 docs/plan/*.md、docs/cards/*.md、docs/dat
   output: '今日交付：…'
 }
 ```
+
+## 学习文档 `plan/study-*.mjs`
+
+- `study-01-04.mjs` 导出 `dayStudies`，键是 `w{周}d{天}`（如 `w1d1`），字段：`goal`、`sections`、`resources`、`practice`、`selfCheck`。
+- `study-05-20.mjs` 导出 `weekStudies`，键是周序号（如 `5`），字段：`goal`、`split`、`sections`、`resources`、`pitfalls`、`selfCheck`。
+- 生成脚本会校验：W1–W4 每天必须有一份，W5–W20 每周必须有一份；缺了会直接报错。
 
 ## ID 约定（重要）
 
@@ -149,4 +157,4 @@ scripts/build-content.mjs   # 生成 docs/plan/*.md、docs/cards/*.md、docs/dat
 
 1. 在 `plan/weeks-01-04.mjs`（要每日细化）或 `plan/weeks-05-20.mjs`（周粒度）里加一个周对象。
 2. 同步修改 `plan/index.mjs` 里的 `phases` 区间（如果新增了阶段）。
-3. 跑 `pnpm content && pnpm dev` 检查。
+3. 跑 `npm run content && npm run dev` 检查。

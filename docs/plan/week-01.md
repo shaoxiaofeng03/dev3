@@ -2,7 +2,7 @@
 title: 第 1 周 · LLM 应用全景 · 环境 · 第一次 API 调用
 description: 2026-11-23 起，P0 地基
 ---
-<!-- 本页由 scripts/build-content.mjs 自动生成，请勿直接编辑。改 plan/ 下的数据源后重新运行 pnpm content -->
+<!-- 本页由 scripts/build-content.mjs 自动生成，请勿直接编辑。改 plan/ 下的数据源后重新运行 npm run content -->
 
 
 # 第 1 周 · LLM 应用全景 · 环境 · 第一次 API 调用
@@ -25,21 +25,21 @@ description: 2026-11-23 起，P0 地基
 
 ## 每日安排
 
-> 每天 2 小时（工作日）/ 8 小时（周末）。勾选即打卡，可填写当日收获与耗时。
+> 每天 2 小时（工作日）/ 8 小时（周末）。勾选即打卡，可填写当日收获与耗时。每天的知识点、资料与自检见「学习」列。
 
 <ClientOnly><WeekTasks week="1" /></ClientOnly>
 
 ### 时间分配一览
 
-| 日期 | 星期 | 时长 | 重点 | 当日交付 |
-| --- | --- | --- | --- | --- |
-| 2026-11-23 | 周一 | 2h | 认知地图 + 环境搭建 | 一张技术地图 + 环境检查全部通过 |
-| 2026-11-24 | 周二 | 2h | Python 速成（一）：语法与数据结构 | projects/w1/exercises_w1.py，10 题全部跑通 |
-| 2026-11-25 | 周三 | 2h | Python 速成（二）：工程化与 HTTP | 带类型注解和异常处理的 CLI 小工具 |
-| 2026-11-26 | 周四 | 2h | LLM 基础概念与参数 | 参数速查表 + 能不看文档说清 temperature 和 top_p 的区别 |
-| 2026-11-27 | 周五 | 2h | 第一次 API 调用：单轮 → 多轮 → 流式 | chat.py 支持多轮对话 + 流式输出 + 用量统计 |
-| 2026-11-28 | 周六 | 8h | 封装 LLMClient：重试、超时、结构化输出、单测 | llm_client.py + 单测全绿 + 一篇工程笔记 |
-| 2026-11-29 | 周日 | 8h | 小项目：CLI 学习助手 v0.1 + 周复盘 | 可演示的 CLI 学习助手 v0.1 + README + 第 1 周复盘 |
+| 日期 | 星期 | 时长 | 重点 | 当日交付 | 学习 |
+| --- | --- | --- | --- | --- | --- |
+| 2026-11-23 | 周一 | 2h | 认知地图 + 环境搭建 | 一张技术地图 + 环境检查全部通过 | [打开](/study/w01d1) |
+| 2026-11-24 | 周二 | 2h | Python 速成（一）：语法与数据结构 | projects/w1/exercises_w1.py，10 题全部跑通 | [打开](/study/w01d2) |
+| 2026-11-25 | 周三 | 2h | Python 速成（二）：工程化与 HTTP | 带类型注解和异常处理的 CLI 小工具 | [打开](/study/w01d3) |
+| 2026-11-26 | 周四 | 2h | LLM 基础概念与参数 | 参数速查表 + 能不看文档说清 temperature 和 top_p 的区别 | [打开](/study/w01d4) |
+| 2026-11-27 | 周五 | 2h | 第一次 API 调用：单轮 → 多轮 → 流式 | chat.py 支持多轮对话 + 流式输出 + 用量统计 | [打开](/study/w01d5) |
+| 2026-11-28 | 周六 | 8h | 封装 LLMClient：重试、超时、结构化输出、单测 | llm_client.py + 单测全绿 + 一篇工程笔记 | [打开](/study/w01d6) |
+| 2026-11-29 | 周日 | 8h | 小项目：CLI 学习助手 v0.1 + 周复盘 | 可演示的 CLI 学习助手 v0.1 + README + 第 1 周复盘 | [打开](/study/w01d7) |
 
 ## 本周交付
 
@@ -68,7 +68,7 @@ description: 2026-11-23 起，P0 地基
 - [DeepSeek 模型与价格](https://api-docs.deepseek.com/quick_start/pricing)
 - [DeepSeek 错误码](https://api-docs.deepseek.com/quick_start/error_codes)
 - [uv 官方文档](https://docs.astral.sh/uv/)
-- [LeetCode 热题 100](https://leetcode.cn/studyplan/top-100-liked/)
+- [零基础算法题单（本站）](https://shaoxiaofeng03.github.io/dev3/guide/algo)
 
 ## 记忆卡
 

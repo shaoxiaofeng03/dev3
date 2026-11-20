@@ -2,7 +2,7 @@
 title: 第 16 周 · 八股专项一：LLM / RAG / Agent 高频题
 description: 2027-03-08 起，P4 冲刺
 ---
-<!-- 本页由 scripts/build-content.mjs 自动生成，请勿直接编辑。改 plan/ 下的数据源后重新运行 pnpm content -->
+<!-- 本页由 scripts/build-content.mjs 自动生成，请勿直接编辑。改 plan/ 下的数据源后重新运行 npm run content -->
 
 
 # 第 16 周 · 八股专项一：LLM / RAG / Agent 高频题
@@ -11,7 +11,7 @@ description: 2027-03-08 起，P4 冲刺
 
 ## 本周目标
 
-把三周项目里的经验，转成能脱口而出的结构化答案。
+把三个项目里的经验，转成能脱口而出的结构化答案。
 
 ## 为什么这样安排
 
@@ -25,9 +25,18 @@ description: 2027-03-08 起，P4 冲刺
 
 ## 本周清单
 
-> 这一周按「周目标 + 清单」推进，开始前把清单拆成 7 天。勾选会实时保存，并可通过打卡页同步到 GitHub。
+> 本周学习指南：[第 16 周学习文档](/study/week-16)。这一周按「周目标 + 清单」推进，开始前把清单拆成 7 天。勾选会实时保存，并可通过打卡页同步到 GitHub。
 
 <ClientOnly><WeekTasks week="16" /></ClientOnly>
+
+## 每日固定节奏
+
+> 不随本周主题变化，按工作日 2h / 周末 8h 执行：
+
+- 25 分钟算法：W1–W6 按[题单](/guide/algo)推进；W7 起每周至少 3 次，错题优先。
+- 15–25 分钟记忆卡：当天到期 + 本周卡；周日做一次周测。
+- 工作日 50 分钟主线；周末按本周清单推进。
+- 每天结束写一句记录：学到什么 / 卡在哪 / 明天怎么调。
 
 ## 本周交付
 
@@ -46,6 +55,7 @@ description: 2027-03-08 起，P4 冲刺
 
 - [The Illustrated Transformer](https://jalammar.github.io/illustrated-transformer/)
 - [vLLM 文档（推理优化）](https://docs.vllm.ai/)
+- [Anthropic · Effective context engineering for AI agents](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents)
 
 ## 记忆卡
 

@@ -1,7 +1,7 @@
 ---
 title: 记忆卡
 ---
-<!-- 本页由 scripts/build-content.mjs 自动生成，请勿直接编辑。改 plan/ 下的数据源后重新运行 pnpm content -->
+<!-- 本页由 scripts/build-content.mjs 自动生成，请勿直接编辑。改 plan/ 下的数据源后重新运行 npm run content -->
 
 
 # 记忆卡 · 间隔重复
@@ -28,8 +28,8 @@ title: 记忆卡
 - [第 14 周 · Java 侧 AI：Spring AI / LangChain4j](/cards/week-14)（4 张）
 - [第 15 周 · 企业级集成 + 项目三 + 简历 v1](/cards/week-15)（4 张）
 - [第 16 周 · 八股专项一：LLM / RAG / Agent 高频题](/cards/week-16)（5 张）
-- [第 17 周 · 八股专项二 + 系统设计 + 模拟面试](/cards/week-17)（3 张）
-- [第 18 周 · 投递启动 · 面试 · 复盘循环](/cards/week-18)（2 张）
+- [第 17 周 · 八股专项二 + 系统设计 + 模拟面试 + 首批投递](/cards/week-17)（3 张）
+- [第 18 周 · 面试启动 · 补投 · 复盘循环](/cards/week-18)（2 张）
 - [第 19 周 · 面试高峰：稳定输出与短板补齐](/cards/week-19)（2 张）
 - [第 20 周 · 收尾：offer 评估、谈判与入职准备](/cards/week-20)（2 张）
 

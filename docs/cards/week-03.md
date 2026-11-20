@@ -1,7 +1,7 @@
 ---
 title: 第 3 周记忆卡
 ---
-<!-- 本页由 scripts/build-content.mjs 自动生成，请勿直接编辑。改 plan/ 下的数据源后重新运行 pnpm content -->
+<!-- 本页由 scripts/build-content.mjs 自动生成，请勿直接编辑。改 plan/ 下的数据源后重新运行 npm run content -->
 
 
 # 第 3 周记忆卡
@@ -52,7 +52,7 @@ title: 第 3 周记忆卡
 
 ### 7. 选向量库主要看哪几个维度？
 
-**答**：① 部署（托管/自建、是否要 Docker/K8s）；② 检索能力（元数据过滤、混合检索、多向量）；③ 规模与性能（百万级还是十亿级）；④ 运维与成本；⑤ 生态（LangChain/LlamaIndex 支持）。小团队常选 pgvector（少一个组件）或 Qdrant（能力强）。
+**答**：① 部署（托管/自建、是否要 Docker/K8s）；② 检索能力（元数据过滤、混合检索、多向量）；③ 规模与性能（百万级还是十亿级）；④ 运维与成本；⑤ 生态（LangChain/LlamaIndex 支持）。本项目默认 Chroma（pip 安装、零运维）；生产上 pgvector（少一个组件）或 Qdrant（能力强）也常见。
 
 <small>标签：向量库 · ID：w3-c7</small>
 

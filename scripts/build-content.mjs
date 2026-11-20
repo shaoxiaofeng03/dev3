@@ -5,12 +5,14 @@ import { constants } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { meta, phases, weeks, weekRange, weekdayOf, addDays } from '../plan/index.mjs';
+import { dayStudies } from '../plan/study-01-04.mjs';
+import { weekStudies } from '../plan/study-05-20.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const docs = path.join(root, 'docs');
 
-const GEN_NOTE = '<!-- 本页由 scripts/build-content.mjs 自动生成，请勿直接编辑。改 plan/ 下的数据源后重新运行 pnpm content -->\n';
+const GEN_NOTE = '<!-- 本页由 scripts/build-content.mjs 自动生成，请勿直接编辑。改 plan/ 下的数据源后重新运行 npm run content -->\n';
 
 async function ensureDir(dir) {
   await mkdir(dir, { recursive: true });
@@ -31,6 +33,195 @@ function escapeCell(text) {
 
 function n2(n) {
   return String(n).padStart(2, '0');
+}
+
+function renderSections(sections = []) {
+  const lines = [];
+  for (const sec of sections) {
+    lines.push(`### ${sec.h}`);
+    lines.push('');
+    for (const p of sec.p ?? []) {
+      lines.push(p);
+      lines.push('');
+    }
+    if (sec.list?.length) {
+      for (const item of sec.list) lines.push(`- ${item}`);
+      lines.push('');
+    }
+  }
+  return lines;
+}
+
+function renderResources(resources = []) {
+  const lines = [];
+  lines.push('## 资料与阅读顺序');
+  lines.push('');
+  if (!resources.length) {
+    lines.push('本周没有额外阅读材料，按清单推进即可。');
+    lines.push('');
+    return lines;
+  }
+  resources.forEach((item, i) => {
+    lines.push(`${i + 1}. [${item.title}](${item.url})${item.note ? ` — ${item.note}` : ''}`);
+  });
+  lines.push('');
+  return lines;
+}
+
+function renderChecklist(title, items = []) {
+  const lines = [];
+  lines.push(`## ${title}`);
+  lines.push('');
+  for (const item of items) lines.push(`- [ ] ${item}`);
+  lines.push('');
+  return lines;
+}
+
+function renderBullets(title, items = []) {
+  const lines = [];
+  lines.push(`## ${title}`);
+  lines.push('');
+  for (const item of items) lines.push(`- ${item}`);
+  lines.push('');
+  return lines;
+}
+
+function fixedRhythmMd() {
+  const lines = [];
+  lines.push('## 每日固定节奏');
+  lines.push('');
+  lines.push('> 不随本周主题变化，按工作日 2h / 周末 8h 执行：');
+  lines.push('');
+  lines.push('- 25 分钟算法：W1–W6 按[题单](/guide/algo)推进；W7 起每周至少 3 次，错题优先。');
+  lines.push('- 15–25 分钟记忆卡：当天到期 + 本周卡；周日做一次周测。');
+  lines.push('- 工作日 50 分钟主线；周末按本周清单推进。');
+  lines.push('- 每天结束写一句记录：学到什么 / 卡在哪 / 明天怎么调。');
+  lines.push('');
+  return lines;
+}
+
+function dayStudyMd(week, day, index) {
+  const key = `w${week.n}d${index + 1}`;
+  const study = dayStudies[key];
+  const { start, end } = weekRange(week);
+  const lines = [];
+  lines.push('---');
+  lines.push(`title: W${week.n} ${weekdayOf(day.date)} · ${day.focus}`);
+  lines.push(`description: ${day.date} · 第 ${week.n} 周学习文档`);
+  lines.push('---');
+  lines.push(GEN_NOTE);
+  lines.push('');
+  lines.push(`# W${week.n} ${weekdayOf(day.date)} · ${day.focus}`);
+  lines.push('');
+  lines.push(
+    `<div class="week-meta"><span>📅 ${day.date}</span><span>⏱ ${day.hours}h</span><span>🧭 ${week.phase}</span><span>🗓 W${week.n}（${start} ~ ${end}）</span></div>`
+  );
+  lines.push('');
+  lines.push(
+    `> 对应计划：[第 ${week.n} 周 · ${week.theme}](/plan/week-${n2(week.n)})　|　[本周记忆卡](/cards/week-${n2(week.n)})　|　[学习文档总览](/study/)`
+  );
+  lines.push('');
+  lines.push('## 今天要解决什么');
+  lines.push('');
+  lines.push(study.goal);
+  lines.push('');
+  lines.push(...renderSections(study.sections));
+  lines.push(...renderResources(study.resources));
+  lines.push(...renderChecklist('动手清单', study.practice));
+  lines.push(...renderChecklist('自检问题', study.selfCheck));
+  lines.push('## 收尾');
+  lines.push('');
+  lines.push(`- 回到[第 ${week.n} 周计划](/plan/week-${n2(week.n)})勾选今天的任务。`);
+  lines.push('- 写一句今天的收获或卡点，方便周日复盘。');
+  if (index < (week.days?.length ?? 0) - 1) {
+    lines.push(`- 明天：[W${week.n} ${weekdayOf(week.days[index + 1].date)} · ${week.days[index + 1].focus}](/study/w${n2(week.n)}d${index + 2})`);
+  } else {
+    lines.push(`- 下周：[第 ${week.n + 1} 周学习文档](/study/${week.n + 1 <= 4 ? `w${n2(week.n + 1)}d1` : `week-${n2(week.n + 1)}`})`);
+  }
+  lines.push('');
+  return lines.join('\n');
+}
+
+function weekStudyMd(week) {
+  const study = weekStudies[week.n];
+  const { start, end } = weekRange(week);
+  const lines = [];
+  lines.push('---');
+  lines.push(`title: 第 ${week.n} 周学习指南 · ${week.theme}`);
+  lines.push(`description: ${start} 起，每周学习文档`);
+  lines.push('---');
+  lines.push(GEN_NOTE);
+  lines.push('');
+  lines.push(`# 第 ${week.n} 周学习指南 · ${week.theme}`);
+  lines.push('');
+  lines.push(
+    `<div class="week-meta"><span>📅 ${start} ~ ${end}</span><span>⏱ 约 ${week.hours ?? meta.hoursPerWeek} 小时</span><span>🧭 ${week.phase}</span><span>🎴 ${week.cards.length} 张记忆卡</span></div>`
+  );
+  lines.push('');
+  lines.push(
+    `> 对应计划：[第 ${week.n} 周计划](/plan/week-${n2(week.n)})　|　[本周记忆卡](/cards/week-${n2(week.n)})　|　[学习文档总览](/study/)`
+  );
+  lines.push('');
+  lines.push('## 本周目标');
+  lines.push('');
+  lines.push(study.goal);
+  lines.push('');
+  lines.push('## 7 天拆分建议');
+  lines.push('');
+  lines.push('| 时间 | 重点 | 产出 |');
+  lines.push('| --- | --- | --- |');
+  for (const row of study.split) {
+    lines.push(`| ${escapeCell(row.day)} | ${escapeCell(row.focus)} | ${escapeCell(row.output ?? '')} |`);
+  }
+  lines.push('');
+  lines.push(...renderSections(study.sections));
+  lines.push(...renderResources(study.resources));
+  lines.push(...renderBullets('常见坑', study.pitfalls));
+  lines.push(...renderChecklist('验收问题', study.selfCheck));
+  lines.push(...fixedRhythmMd());
+  lines.push('## 收尾');
+  lines.push('');
+  lines.push(`- 回到[第 ${week.n} 周计划](/plan/week-${n2(week.n)})勾选清单。`);
+  lines.push('- 周日写复盘：计划 vs 实际 / 最大卡点 / 下周只改一件事。');
+  lines.push('');
+  return lines.join('\n');
+}
+
+function studyIndexMd() {
+  const lines = [];
+  lines.push('---');
+  lines.push('title: 学习文档');
+  lines.push('---');
+  lines.push(GEN_NOTE);
+  lines.push('');
+  lines.push('# 学习文档');
+  lines.push('');
+  lines.push('> **W1–W4 每天一页**（讲义级：知识点、阅读顺序、动手、自检）；**W5–W20 每周一页**（导航级：7 天拆分、资料、常见坑、验收问题）。');
+  lines.push('');
+  lines.push('## 怎么用');
+  lines.push('');
+  lines.push('1. 每天打开当天页面，先看「今天要解决什么」，再按「资料与阅读顺序」读。');
+  lines.push('2. 读完做「动手清单」，最后用「自检问题」检查自己是否真的会了。');
+  lines.push('3. 回到[计划页](/plan/)勾选任务；周末在[打卡页](/checkin)复盘。');
+  lines.push('');
+  for (const phase of phases) {
+    const list = weeks.filter((w) => w.n >= phase.weeks[0] && w.n <= phase.weeks[1]);
+    lines.push(`## ${phase.name}（W${phase.weeks[0]}–W${phase.weeks[1]}）`);
+    lines.push('');
+    for (const w of list) {
+      if (w.detail === false) {
+        lines.push(`- [W${w.n} · ${w.theme}](/study/week-${n2(w.n)})（每周一页）`);
+      } else {
+        lines.push(`- **W${w.n} · ${w.theme}**`);
+        for (let i = 0; i < w.days.length; i += 1) {
+          const day = w.days[i];
+          lines.push(`  - [W${w.n} ${weekdayOf(day.date)} · ${day.focus}](/study/w${n2(w.n)}d${i + 1})`);
+        }
+      }
+    }
+    lines.push('');
+  }
+  return lines.join('\n');
 }
 
 function weekMd(week) {
@@ -64,26 +255,27 @@ function weekMd(week) {
   if (week.detail === false) {
     lines.push('## 本周清单');
     lines.push('');
-    lines.push('> 这一周按「周目标 + 清单」推进，开始前把清单拆成 7 天。勾选会实时保存，并可通过打卡页同步到 GitHub。');
+    lines.push(`> 本周学习指南：[第 ${week.n} 周学习文档](/study/week-${n2(week.n)})。这一周按「周目标 + 清单」推进，开始前把清单拆成 7 天。勾选会实时保存，并可通过打卡页同步到 GitHub。`);
     lines.push('');
     lines.push(`<ClientOnly><WeekTasks week="${week.n}" /></ClientOnly>`);
     lines.push('');
+    lines.push(...fixedRhythmMd());
   } else {
     lines.push('## 每日安排');
     lines.push('');
-    lines.push('> 每天 2 小时（工作日）/ 8 小时（周末）。勾选即打卡，可填写当日收获与耗时。');
+    lines.push('> 每天 2 小时（工作日）/ 8 小时（周末）。勾选即打卡，可填写当日收获与耗时。每天的知识点、资料与自检见「学习」列。');
     lines.push('');
     lines.push(`<ClientOnly><WeekTasks week="${week.n}" /></ClientOnly>`);
     lines.push('');
     lines.push('### 时间分配一览');
     lines.push('');
-    lines.push('| 日期 | 星期 | 时长 | 重点 | 当日交付 |');
-    lines.push('| --- | --- | --- | --- | --- |');
-    for (const d of week.days) {
+    lines.push('| 日期 | 星期 | 时长 | 重点 | 当日交付 | 学习 |');
+    lines.push('| --- | --- | --- | --- | --- | --- |');
+    week.days.forEach((d, i) => {
       lines.push(
-        `| ${d.date} | ${weekdayOf(d.date)} | ${d.hours}h | ${escapeCell(d.focus)} | ${escapeCell(d.output.replace(/^今日交付：/, ''))} |`
+        `| ${d.date} | ${weekdayOf(d.date)} | ${d.hours}h | ${escapeCell(d.focus)} | ${escapeCell(d.output.replace(/^今日交付：/, ''))} | [打开](/study/w${n2(week.n)}d${i + 1}) |`
       );
-    }
+    });
     lines.push('');
   }
 
@@ -302,6 +494,28 @@ function validate() {
     });
   });
 
+  // 学习文档覆盖检查：W1–W4 每天一份，W5–W20 每周一份
+  weeks.forEach((w) => {
+    if (w.detail === false) {
+      if (!weekStudies[w.n]) errors.push(`W${w.n} 缺少学习指南（plan/study-05-20.mjs）`);
+      return;
+    }
+    w.days.forEach((d, i) => {
+      const key = `w${w.n}d${i + 1}`;
+      if (!dayStudies[key]) errors.push(`W${w.n} ${d.date} 缺少学习文档（plan/study-01-04.mjs 的 ${key}）`);
+    });
+  });
+
+  for (const [key, study] of Object.entries(dayStudies)) {
+    if (!study.goal) errors.push(`学习文档 ${key} 缺少 goal`);
+    if (!study.sections?.length) errors.push(`学习文档 ${key} 缺少 sections`);
+    if (!study.selfCheck?.length) errors.push(`学习文档 ${key} 缺少自检问题`);
+  }
+  for (const [n, study] of Object.entries(weekStudies)) {
+    if (!study.goal) errors.push(`W${n} 学习指南缺少 goal`);
+    if (!study.split?.length) errors.push(`W${n} 学习指南缺少 7 天拆分`);
+  }
+
   if (errors.length) {
     throw new Error(`内容校验失败：\n- ${errors.join('\n- ')}`);
   }
@@ -312,6 +526,7 @@ async function main() {
 
   await ensureDir(path.join(docs, 'plan'));
   await ensureDir(path.join(docs, 'cards'));
+  await ensureDir(path.join(docs, 'study'));
   await ensureDir(path.join(docs, 'data'));
 
   const plan = {
@@ -335,13 +550,24 @@ async function main() {
   }
   await writeFile(path.join(docs, 'data', 'cards.json'), JSON.stringify(cards, null, 2) + '\n', 'utf8');
 
+  let studyPages = 0;
   for (const w of weeks) {
     await writeFile(path.join(docs, 'plan', `week-${n2(w.n)}.md`), weekMd(w), 'utf8');
     await writeFile(path.join(docs, 'cards', `week-${n2(w.n)}.md`), cardsMd(w), 'utf8');
+    if (w.detail === false) {
+      await writeFile(path.join(docs, 'study', `week-${n2(w.n)}.md`), weekStudyMd(w), 'utf8');
+      studyPages += 1;
+    } else {
+      for (let i = 0; i < w.days.length; i += 1) {
+        await writeFile(path.join(docs, 'study', `w${n2(w.n)}d${i + 1}.md`), dayStudyMd(w, w.days[i], i), 'utf8');
+        studyPages += 1;
+      }
+    }
   }
 
   await writeFile(path.join(docs, 'plan', 'index.md'), planIndexMd(), 'utf8');
   await writeFile(path.join(docs, 'cards', 'index.md'), cardsIndexMd(), 'utf8');
+  await writeFile(path.join(docs, 'study', 'index.md'), studyIndexMd(), 'utf8');
 
   const checkins = path.join(docs, 'data', 'checkins.json');
   if (!(await exists(checkins))) {
@@ -362,7 +588,7 @@ async function main() {
   }
 
   console.log(
-    `✅ 已生成：${weeks.length} 个周页面、${weeks.length} 个记忆卡页面、${cards.length} 张卡片、打卡页索引`
+    `✅ 已生成：${weeks.length} 个周页面、${weeks.length} 个记忆卡页面、${studyPages} 个学习文档页面、${cards.length} 张卡片、打卡页索引`
   );
 }
 
