@@ -27,17 +27,29 @@
       "note": "收获：手写完成 W1 周二 10 题（10/10），把 Java 写法逐题翻译成 Python——列表推导式≈stream 的 map/filter、dict.setdefault 分组、yield 惰性生成器。卡点：第 4 题可变默认参数最反直觉，默认值只在定义时求值一次，bucket=[] 会被所有调用共享，必须用 None 再在函数里新建。",
       "minutes": 600,
       "retro": "",
-      "logs": [],
-      "updatedAt": "2026-11-20T09:42:13.122Z"
+      "logs": [
+        {
+          "id": "l_mwpsxbrv_rlj466",
+          "at": "2026-11-21T02:41:23.419Z",
+          "tag": "blocker",
+          "text": "kept = \"\".join(c for c in title.lower() if c.isalnum() or c.isspace()) # 遍历判断再用空串拼接\n\"-\".join(kept.split())"
+        }
+      ],
+      "updatedAt": "2026-11-21T02:41:23.420Z"
     },
     {
       "date": "2026-11-25",
-      "items": [],
+      "items": [
+        "w1d3t1",
+        "w1d3t3",
+        "w1d3t2",
+        "w1d3t4"
+      ],
       "note": "",
       "minutes": 0,
       "retro": "",
       "logs": [],
-      "updatedAt": "2026-11-20T09:00:27.708Z"
+      "updatedAt": "2026-11-21T09:29:40.964Z"
     }
   ]
 }
