@@ -85,78 +85,441 @@ export const dayStudies = {
   },
 
   'w1d3': {
-    goal: '把 Python 从「会写函数」推进到「能写一个小工具」：模块、依赖、异常、类型、HTTP。',
+    goal: '用 2 小时把 Python 从「会写函数」推进到「能交付一个小工具」：会建项目、管依赖、拆模块、写类型、处理异常、发出带超时和日志的 HTTP 请求；遇到报错，知道该查哪里。',
     sections: [
-      s('工程化三件套', [
-        'pyproject.toml ≈ pom.xml：声明项目元数据和依赖；uv.lock ≈ 依赖锁定；.venv ≈ 每个项目独立的 classpath。',
-        'import 是运行时行为，模块被 import 时顶层代码会执行；所以入口写 if __name__ == "__main__":。',
+      s('今日大纲：2 小时怎么用', [
+        '先按这张表走一遍；每节的代码都给了完整片段，照抄能跑，不需要再翻官方文档。今天的验收物不是笔记，而是 `projects/hello-world` 里一个能跑的 CLI 探测工具。',
+      ], [
+        '0:00–0:15 三件套：`pyproject.toml` / `uv.lock` / `.venv` 各自负责什么，uv 的 7 个常用命令。',
+        '0:15–0:35 模块与 import：`sys.path`、只执行一次、`__name__` guard、`python -m` 与 `python file.py` 的区别。',
+        '0:35–0:55 异常：分类捕获、`raise ... from`、自定义异常、可重试与不可重试。',
+        '0:55–1:10 类型注解与 dataclass：边界加类型，配置用 dataclass。',
+        '1:10–1:40 HTTP：httpx、四类超时、异常分层、状态码、重试、可观测字段。',
+        '1:40–2:00 实战：把以上拼成 `hello_world` 包，用 `uv run python -m hello_world` 跑通，并故意触发一次 401。',
       ]),
-      s('异常与类型注解', [
-        'except 要具体，不要裸 except Exception 吞掉一切；捕获后要么处理，要么带上上下文重新抛。',
-        '类型注解（str、list[int]、dict[str, list[str]]）不会改变运行时，但能让编辑器、mypy 和未来的你少踩坑。',
+
+      s('一、工程化三件套：声明、锁定、落地', [
+        'Java 里 pom 声明依赖，Maven 解析后下载到 `~/.m2`，classpath 决定运行时能加载哪些 jar。Python 把这三件事拆成了三个东西，并且多了一层「每个项目一个解释器环境」。',
       ]),
-      s('HTTP 客户端三件事', [
-        '超时：连接超时和读超时都要设；没有超时的 HTTP 调用等于埋雷。',
-        '异常：网络错误、超时、非 2xx 状态码要分开处理，不要只 catch 一个 Exception。',
-        '可观测：打印状态码、耗时、请求 id；后面调用 LLM 时这些字段会直接复用。',
+      s('1.1 三件套的数据流', [
+        '把这条链记住，后面所有「为什么装不上 / 为什么版本不对」都能从链上定位：',
+      ], [
+        '`pyproject.toml`：声明「我要什么」，类似 pom 的 `<dependencies>`，本身不安装任何东西。',
+        '`uv.lock`：锁定「最终是哪个版本、从哪来、hash 是多少」，同事和 CI 装出来和你完全一致。',
+        '`.venv/`：落地「本项目的解释器和已装依赖」，可随时删除重建，**不进 git**。',
+        'uv 全局缓存（`~/.cache/uv`）：真正共享的下载缓存，≈ `~/.m2/repository`，第二次装同一个包几乎不下载。',
+        '`sys.path`：运行时真正扮演 classpath 的角色；`.venv` 只是让解释器自动把它加进 `sys.path`。',
       ]),
-      s('async/await 先懂概念', [
-        'asyncio 是单线程事件循环，适合 IO 密集（HTTP、数据库、LLM 调用）；CPU 密集任务用多进程。',
-        '第 1 周不要求写复杂协程，只要知道「await 让出控制权，等 IO 回来再继续」。',
+      s('1.2 pyproject.toml 里只要看懂五块', [
+        '下面是本项目的完整配置，字段都已标注；其余字段（authors、readme、license）不影响今天的目标。',
+        '```toml\n[project]\nname = "hello-world"\nversion = "0.1.0"\nrequires-python = ">=3.13"            # 允许的解释器版本范围\n\ndependencies = [\n    "httpx>=0.28",                     # 等价于 pom 的 <dependency>\n]\n\n[project.scripts]\nhello-world = "hello_world.cli:main"   # 命令名 → 包.模块:函数\n\n[build-system]\nrequires = ["uv_build>=0.13.8,<0.14.0"]\nbuild-backend = "uv_build"             # 打包后端，先当黑盒\n```',
+        '`[project.scripts]` 最容易忽略：它注册的是一条**真实命令**。装好项目后，终端里的 `hello-world` 就等于调用 `hello_world/cli.py` 里的 `main()`，和 Java 在 manifest 里写 `Main-Class` 是同一类机制。',
+      ]),
+      s('1.3 uv 常用命令：一张表够用', [
+        '所有命令都在项目根目录执行；`uv run` 会自动向上查找 `pyproject.toml`，找不到才报错。',
+        '| 命令 | 做什么 | Maven 类比 |\n| --- | --- | --- |\n| `uv init --package hello-world` | 建项目骨架（src layout） | `mvn archetype:generate` |\n| `uv add httpx` | 改 pyproject + 更新 lock + 装进 .venv | 改 pom 后 `mvn install` |\n| `uv remove httpx` | 删依赖并同步三件套 | 删依赖后重新解析 |\n| `uv lock` | 只解析并写 `uv.lock` | 无真正对应 |\n| `uv sync` | 让 `.venv` 与 `uv.lock` 一致 | `mvn dependency:go-offline` |\n| `uv sync --locked` | 声明与 lock 不一致就直接失败（CI 用） | 无真正对应 |\n| `uv run <cmd>` | 在项目环境里执行，必要时先 sync | `mvn exec:java` |\n| `uv tree` | 打印依赖树 | `mvn dependency:tree` |\n| `uv python pin 3.13` | 写 `.python-version` | Maven toolchains |',
+      ]),
+      s('1.4 lock 与 git 的三条纪律', [
+        '`pyproject.toml` 和 `uv.lock` 都提交；`.venv/` 不提交。clone 下来的人只跑 `uv sync --locked`，不要让他「自己 pip install 一堆」。',
+        '`uv.lock` 不要手改。要升级某个包用 `uv lock --upgrade-package httpx`，要全量升级用 `uv lock --upgrade`，然后看 diff 再提交。',
+        'CI 里用 `uv sync --locked`：声明和锁不一致就直接失败，避免普通 `uv sync` **悄悄改锁**绕过评审。`--frozen` 更激进，连锁是否过期都不检查，只在明确不需要动锁的场景用；本地开发用普通 `uv sync` 即可。',
+      ]),
+      s('1.5 为什么源码放在 src/ 下', [
+        '`src/hello_world/` 不在项目根目录，默认不在 `sys.path` 上。`uv sync` 会以 editable 方式把 `hello_world` 装进 `.venv`，于是 `import hello_world` 加载的是源码目录，而不是「碰巧当前目录有个同名文件夹」。',
+        '这和 Java 必须把代码打成 jar 才能被别的模块引用是一个道理：先安装，再导入。好处是「本地能跑」和「装完能跑」是同一种状态，测试不会给你假阳性。',
+        '```\nprojects/hello-world/\n├── pyproject.toml\n├── uv.lock\n├── .python-version\n└── src/\n    └── hello_world/\n        ├── __init__.py\n        ├── __main__.py\n        ├── cli.py\n        ├── config.py\n        └── http_probe.py\n```',
+      ]),
+
+      s('二、import 到底怎么找模块', [
+        '先记住一句话：**import 不是编译期链接，而是运行时按路径找文件并执行。** 找的过程只看 `sys.path`，执行的结果缓存在 `sys.modules`。',
+      ]),
+      s('2.1 模块、包、包的入口', [
+        '一个 `.py` 文件就是模块；带 `__init__.py` 的目录是包。`hello_world` 是包，`hello_world.cli` 是包里的模块。',
+        '包被 import 时，`__init__.py` 先执行；它应该保持轻量（版本号、少量导出），不要在里面发网络请求或读配置。',
+        '`python -m hello_world` 的完整流程是：先 import 包 `hello_world`（执行 `__init__.py`），再执行 `hello_world/__main__.py`，并把它的 `__name__` 设为 `"__main__"`。',
+      ]),
+      s('2.2 sys.path 随启动方式变化', [
+        '这是「我这儿能跑、你那儿 ModuleNotFoundError」的第一大来源。注意区别在于**第一个元素**：',
+        '| 启动方式 | `sys.path[0]` | 说明 |\n| --- | --- | --- |\n| `python script.py` | 脚本所在目录 | 不是当前工作目录 |\n| `python -m pkg.mod` | 当前工作目录 | 需要 cwd 是项目根 |\n| `import pkg` | 不变 | 解释器还会加上 `.venv` 的 site-packages |',
+        '`uv run` 不改变这条规则，它只是确保用 `.venv` 里的 python，并在必要时先 sync。想在任意目录运行，就不要依赖 cwd，改用已安装的包或 console script。',
+      ]),
+      s('2.3 顶层代码只执行一次', [
+        '把下面这段放进 `src/hello_world/__init__.py`，然后连续 import 两次：',
+        '```python\n# src/hello_world/__init__.py\nprint("hello_world 被导入了")\n\n__version__ = "0.1.0"\n```',
+        '```bash\nuv run python -c "import hello_world; import hello_world"\n# 输出只有一行：hello_world 被导入了\n```',
+        '第二次 import 直接命中 `sys.modules` 缓存。这就是模块级状态的来源：模块里的变量相当于单例，测试之间会互相污染。',
+      ]),
+      s('2.4 __name__ 与入口 guard', [
+        '`__name__` 在「直接作为入口执行」时是 `"__main__"`，被 import 时是模块名。注意：`python file.py` 和 `python -m pkg.mod` 都会让目标文件拿到 `"__main__"`，区别不在 `__name__`，而在 `sys.path` 和是否经过包。',
+        '```python\n# src/hello_world/cli.py\ndef main() -> int:\n    print("真正的主逻辑")\n    return 0\n\n\nif __name__ == "__main__":\n    raise SystemExit(main())\n```',
+        '两种运行结果：',
+        '```bash\nuv run python -m hello_world.cli   # __name__ == "__main__"，主逻辑执行\nuv run python -c "import hello_world.cli"  # __name__ == "hello_world.cli"，主逻辑不执行\n```',
+        '不写 guard 的后果很具体：别人 import 你的模块（包括 pytest 收集测试、另一个模块复用你的函数）会连带执行主逻辑。`raise SystemExit(main())` 比 `main()` 多做了两件事：把返回值当退出码，并让 `finally` 正常执行。',
+      ]),
+      s('2.5 绝对导入、相对导入、循环导入', [
+        '项目代码统一用绝对导入：`from hello_world.config import ProbeConfig`。它永远是明确的，挪动文件后也容易搜到。',
+        '相对导入 `from .config import ProbeConfig` 只在「模块作为包的一部分被加载」时可用；直接 `python src/hello_world/cli.py` 把文件当顶层脚本执行时，Python 不知道它的父包，会报 `attempted relative import with no known parent package`。这就是推荐 `python -m` 的原因之一。',
+        '循环导入（A import B，B 又 import A）通常不是语法问题，而是分层设计问题。按 `config ← http_probe ← cli` 单向依赖组织代码；真遇到时，把公共类型下沉到独立模块，而不是到处写函数内 import。',
+      ]),
+      s('2.6 import 报错排查三步', [
+        '先确认解释器和路径，再确认包名，最后确认导出名。不要一上来就改代码。',
+        '```bash\n# 1. 看解释器与搜索路径\nuv run python -c "import sys; print(sys.path)"\n\n# 2. 看实际加载到哪个文件（关键一步）\nuv run python -c "import hello_world; print(hello_world.__file__)"\n\n# 3. 看包是否真的装进了环境\nuv pip list | grep hello\n```',
+        '| 报错 | 含义 | 优先检查 |\n| --- | --- | --- |\n| `ModuleNotFoundError: No module named ...` | 路径上找不到模块 | 是否 `uv sync`、cwd 是否是项目根、包名拼写 |\n| `ImportError: cannot import name ...` | 模块找到了，但里面没有这个名字 | 导出名拼写、是否忘了定义、是否循环导入 |\n| `attempted relative import ...` | 把包内文件当脚本直接跑了 | 改用 `python -m`，或改成绝对导入 |\n| `partially initialized module ...` | 循环导入 | 调整依赖方向 |',
+      ]),
+
+      s('三、异常：把失败当作正常路径', [
+        '网络代码里，失败是常态，不是意外。异常处理的目标不是「不让程序崩」，而是**让每一层只处理自己能处理的错误，其余带着上下文往上抛**。',
+      ]),
+      s('3.1 异常层次：只记常用的', [
+        '```\nBaseException\n├── SystemExit          # sys.exit / raise SystemExit\n├── KeyboardInterrupt   # Ctrl+C\n└── Exception\n    ├── OSError         # IO 错误基类\n    │   ├── FileNotFoundError\n    │   ├── ConnectionError\n    │   └── TimeoutError\n    ├── ValueError      # 值不合法（json.JSONDecodeError 是它的子类）\n    ├── TypeError       # 类型不对\n    ├── KeyError        # dict 键不存在\n    └── RuntimeError\n```',
+        '`except Exception` 不会捕获 `KeyboardInterrupt` 和 `SystemExit`，这是好事：Ctrl+C 永远能打断程序。永远不要写裸 `except:`。',
+      ]),
+      s('3.2 try / except / else / finally 的分工', [
+        '```python\ntry:\n    resp = client.get(url)\n    resp.raise_for_status()\nexcept httpx.TimeoutException:\n    ...                      # 只处理超时\nelse:\n    data = resp.json()       # 只有 try 全部成功才执行\nfinally:\n    client.close()           # 无论如何都执行\n```',
+        '`else` 的价值：把「可能出错的请求」和「成功后的处理」分开，避免把解析错误也误当成请求错误捕获。',
+        '捕获顺序必须**子类在前**。`httpx.TimeoutException` 是 `httpx.RequestError` 的子类，如果先写 `except RequestError`，超时分支永远不会生效。',
+      ]),
+      s('3.3 重新抛出要带上下文', [
+        '```python\ntry:\n    resp = client.get(url)\nexcept httpx.ConnectError as exc:\n    raise ProbeError(f"连接失败: {url}") from exc\n```',
+        '`from exc` 会保留原始异常，traceback 里显示「The above exception was the direct cause...」。丢掉它，线上只能看到一句「连接失败」，不知道是 DNS、TLS 还是代理。',
+        '如果只是记录后继续抛，不要用 `raise exc`（会重置 traceback），直接用裸 `raise`。',
+      ]),
+      s('3.4 自定义异常：给调用方一个稳定契约', [
+        '不要让 httpx 的异常类型泄漏到 CLI 层。定义一个基类，再按「调用方要不要区别对待」拆子类：',
+        '```python\nclass ProbeError(Exception):\n    """探测失败的基类。"""\n\n\nclass NetworkError(ProbeError):\n    """连不上、握手失败、超时、连接中断。"""\n\n\nclass StatusError(ProbeError):\n    """服务器返回了 4xx / 5xx。"""\n\n    def __init__(self, status: int, body: str) -> None:\n        super().__init__(f"HTTP {status}: {body[:200]}")\n        self.status = status\n```',
+        '这样 CLI 层只写 `except ProbeError` 就能统一转成退出码；将来做 LLMClient 时，重试层只捕 `NetworkError`，业务层只捕 `StatusError`，职责清楚。',
+      ]),
+      s('3.5 哪些错误值得重试', [
+        '| 情况 | 可重试 | 处理方式 |\n| --- | --- | --- |\n| `ConnectTimeout` / `ConnectError` | 是 | 退避后重试，先确认地址是否写错 |\n| `ReadTimeout` / `RemoteProtocolError` | 是（仅幂等请求） | GET 可重试；POST 可能已经产生副作用 |\n| HTTP 429 | 是 | 优先遵守 `Retry-After`，再指数退避 |\n| HTTP 5xx | 是 | 指数退避 + 上限 3 次 |\n| HTTP 400 / 401 / 403 / 404 | 否 | 重试只会重复犯错，改请求或改 key |\n| `JSONDecodeError` | 否 | 响应格式变了，属于契约问题 |',
+        '重试的三个必备要素：最大次数、指数退避 + 随机抖动、只对幂等操作重试。没有上限的重试会把一次故障放大成雪崩。',
+      ]),
+
+      s('四、类型注解：写给工具看，不写给解释器看', [
+        'Python 的注解在运行时基本不生效。下面这段不会报错，输出是 `12`：',
+        '```python\ndef add(a: int, b: int) -> int:\n    return a + b\n\nprint(add("1", "2"))   # 12\n```',
+        '所以注解的价值在编辑器补全、mypy/pyright 静态检查、以及读代码的人。策略是：**函数签名和数据结构必标，局部变量能推断就不标。**',
+      ]),
+      s('4.1 今天够用的类型写法', [
+        '| 写法 | 含义 | Java 近似 |\n| --- | --- | --- |\n| `str` / `int` / `float` / `bool` | 基本类型 | 同名 |\n| `list[int]` | 整数列表 | `List<Integer>` |\n| `dict[str, list[str]]` | 字符串到字符串列表 | `Map<String, List<String>>` |\n| `tuple[int, str]` | 定长元组 | `record` / Pair |\n| `str \\| None` | 可能为 None（3.10+） | `Optional<String>` |\n| `Any` | 放弃检查 | `Object`（但更危险） |\n| `Literal["json", "text"]` | 枚举字面量 | enum |\n| `Callable[[str], int]` | 函数类型 | `Function<String, Integer>` |',
+        '`Any` 会污染整条调用链：一个 `Any` 传进去，后面所有检查都失效。宁可用 `str | None` 明确表达「可能没有」，也不要图省事写 `Any`。',
+      ]),
+      s('4.2 配置用 dataclass', [
+        '```python\nfrom dataclasses import dataclass, field\n\n\n@dataclass(frozen=True, slots=True)\nclass ProbeConfig:\n    url: str\n    connect_timeout: float = 5.0\n    read_timeout: float = 10.0\n    headers: dict[str, str] = field(default_factory=dict)\n```',
+        '三个关键点：`frozen=True` 让配置不可变，避免被调用的函数偷偷改掉；`slots=True` 阻止动态加属性，同时更省内存；可变默认值必须用 `field(default_factory=...)`，直接写 `headers: dict = {}` 会让所有实例共享同一个 dict——和第 2 天默认参数的坑是同一个。',
+        'dataclass 自动生成 `__init__`、`__repr__`、`__eq__`，相当于 Java 里手写构造器、`toString`、`equals` 的那堆样板代码。需要转 dict 时用 `dataclasses.asdict(obj)`（注意：`slots=True` 的实例没有 `__dict__`）。',
+      ]),
+      s('4.3 把检查跑起来', [
+        '```bash\nuv add --dev mypy\nuv run mypy src\n```',
+        '编辑器里的 Pylance/pyright 会实时提示，命令行 mypy 适合放进 CI。今天只要求 `mypy src` 不报错，不追求 100% 覆盖。',
+      ]),
+
+      s('五、HTTP 客户端：超时、异常、状态码、可观测', [
+        '安装：`uv add httpx`。下面是最小可用调用，注意用的是 `Client` 而不是模块级 `httpx.get`：',
+        '```python\nimport httpx\n\ntimeout = httpx.Timeout(connect=5.0, read=60.0, write=10.0, pool=5.0)\nwith httpx.Client(timeout=timeout, headers={"Accept": "application/json"}) as client:\n    resp = client.get("https://httpbin.org/get", params={"q": "python"})\n    resp.raise_for_status()\n    data = resp.json()\n```',
+        '`Client` 复用连接池和 TLS 会话，批量请求能省掉大量握手时间；`httpx.get(...)` 每次都会新建客户端。做 CLI 或服务时，一个客户端复用到底。',
+      ]),
+      s('5.1 四类超时，分别管什么', [
+        '| 参数 | 管什么 | 典型值 |\n| --- | --- | --- |\n| `connect` | DNS + TCP + TLS 握手 | 3–5 秒 |\n| `read` | 两次收到数据之间的最大间隔 | 普通 API 10 秒；LLM 60–120 秒 |\n| `write` | 发送请求体的时间 | 10 秒 |\n| `pool` | 等待连接池空闲连接 | 5 秒 |',
+        '两个容易误解的点：第一，`read` 不是总时长，而是「多久没收到新数据」；服务端持续缓慢地吐数据，总时长可以远超 read 超时。第二，httpx 没有内建的「总超时」，需要总时长上限时，异步用 `asyncio.timeout()`，同步在调用方计时并在超时后主动取消。',
+        '不传 `timeout` 时 httpx 默认四类都是 5 秒。LLM 调用必须显式把 `read` 调大，否则长回答会被误杀；但也不能不设，没有超时的 HTTP 调用等于埋雷。',
+      ]),
+      s('5.2 httpx 异常分层', [
+        '```\nhttpx.HTTPError\n├── HTTPStatusError              # raise_for_status() 遇到 4xx / 5xx\n└── RequestError                 # 传输层错误的基类\n    ├── TransportError\n    │   ├── TimeoutException     # ConnectTimeout / ReadTimeout / WriteTimeout / PoolTimeout\n    │   ├── NetworkError         # ConnectError / ReadError / WriteError\n    │   ├── ProtocolError        # RemoteProtocolError 等\n    │   └── ProxyError\n    ├── DecodingError\n    └── TooManyRedirects\n\nhttpx.InvalidURL 直接继承 Exception，不在这棵树里\n```',
+        '记住基类就够写第一版：传输问题 catch `httpx.RequestError`，状态码问题 catch `httpx.HTTPStatusError`；要细分可重试逻辑时，再按上面的子类判断。',
+      ]),
+      s('5.3 状态码：默认不抛异常', [
+        '这是 httpx 和很多人预期不同的地方：**4xx / 5xx 默认只是普通响应，不会抛异常。** 必须显式调用 `resp.raise_for_status()`，或自己判断 `resp.status_code`。',
+        '| 状态 | 含义 | 处理 |\n| --- | --- | --- |\n| 2xx | 成功 | 解析响应 |\n| 301 / 302 | 重定向 | httpx 默认**不跟随**，需要 `follow_redirects=True` |\n| 400 | 请求格式错 | 不重试，检查参数 |\n| 401 / 403 | 认证失败 / 无权限 | 不重试，检查 key 和权限 |\n| 404 | 资源不存在 | 不重试，检查 URL |\n| 429 | 限流 | 可重试，优先读 `Retry-After` |\n| 5xx | 服务端故障 | 可重试，指数退避 |',
+      ]),
+      s('5.4 重试策略的最小实现', [
+        '```python\nimport random\nimport time\n\nimport httpx\n\nRETRYABLE_STATUS = {429, 500, 502, 503, 504}\n\n\ndef should_retry(exc: Exception) -> bool:\n    if isinstance(\n        exc,\n        (httpx.ConnectTimeout, httpx.ReadTimeout, httpx.ConnectError, httpx.RemoteProtocolError),\n    ):\n        return True\n    if isinstance(exc, httpx.HTTPStatusError):\n        return exc.response.status_code in RETRYABLE_STATUS\n    return False\n\n\ndef backoff(attempt: int) -> float:\n    # 0.5s, 1s, 2s, 4s……再乘 0.8–1.2 的随机抖动，避免同时重试\n    return min(8.0, 0.5 * 2 ** attempt) * random.uniform(0.8, 1.2)\n```',
+        '重试循环最多 3 次，每次失败记录 attempt、错误类型、耗时；429 时如果响应头有 `Retry-After`，优先按它等待。POST 请求（尤其是后面调 LLM）不要盲目重试，可能已经扣费或产生了副作用。',
+      ]),
+      s('5.5 可观测：一次请求至少记这六个字段', [
+        '日志用 JSON 一行，后续接采集系统不用再改格式。字段选择和后面 LLMClient 完全复用：',
+        '```json\n{"event": "http_request", "method": "GET", "url": "https://httpbin.org/get", "status": 200, "elapsed_ms": 183.4, "request_id": null}\n```',
+        '`request_id` 从响应头取，不同厂商字段名不同（常见 `x-request-id`，DeepSeek 用 `x-ds-trace-id`，以实际响应头为准）。对账、排障、找厂商支持都靠它。',
+        '耗时用 `time.perf_counter()` 而不是 `time.time()`：前者单调递增，不受系统时间调整影响。',
+      ]),
+
+      s('六、async/await：只要建立正确的心智模型', [
+        'asyncio 是一个单线程事件循环：协程遇到 `await` 时把控制权交还给循环，循环去跑别的任务，IO 完成后再回来继续。它解决的是「等待」的浪费，不是「计算」的浪费。',
+        '```python\nimport asyncio\nimport httpx\n\n\nasync def fetch_status(url: str) -> int:\n    async with httpx.AsyncClient(timeout=10.0) as client:\n        resp = await client.get(url)\n        return resp.status_code\n\n\nasync def main() -> None:\n    urls = ["https://httpbin.org/get", "https://httpbin.org/status/404"]\n    codes = await asyncio.gather(*(fetch_status(u) for u in urls))\n    print(codes)\n\n\nasyncio.run(main())\n```',
+        '两条纪律：异步函数里不要调用阻塞的 `time.sleep()` 或同步 `httpx.Client`，会把整个事件循环卡住；CPU 密集任务（图像处理、大量计算）用多进程，不是 asyncio。今天会用同步客户端就够了，先把异常、超时、日志写对。',
+      ]),
+
+      s('七、实战：拼成一个 CLI 探测工具', [
+        '目标：在 `projects/hello-world` 里实现 `uv run python -m hello_world <URL>`，输出状态码、耗时、request id 和响应预览；网络错误和 4xx/5xx 走错误分支，返回非 0 退出码。这个结构和第 5 天的 chat.py、第 6 天的 LLMClient 是同一套骨架。',
+      ]),
+      s('7.1 文件结构', [
+        '```\nsrc/hello_world/\n├── __init__.py      # 只放版本号，保持轻量\n├── __main__.py      # python -m 的入口\n├── cli.py           # argparse + 退出码，供 -m 和 console script 共用\n├── config.py        # dataclass 配置\n└── http_probe.py    # HTTP 调用、异常映射、计时\n```',
+        '先改 `__init__.py`（删掉 uv init 生成的 `main`，避免和 cli.py 重名），再把 `[project.scripts]` 改成 `hello-world = "hello_world.cli:main"`。',
+        '```python\n# src/hello_world/__init__.py\n__version__ = "0.1.0"\n```',
+      ]),
+      s('7.2 config.py：不可变配置', [
+        '```python\nfrom dataclasses import dataclass, field\n\n\n@dataclass(frozen=True, slots=True)\nclass ProbeConfig:\n    url: str\n    connect_timeout: float = 5.0\n    read_timeout: float = 10.0\n    headers: dict[str, str] = field(default_factory=dict)\n```',
+      ]),
+      s('7.3 http_probe.py：把 httpx 异常翻译成业务异常', [
+        '```python\nimport time\nfrom dataclasses import dataclass\n\nimport httpx\n\nfrom hello_world.config import ProbeConfig\n\n\nclass ProbeError(Exception):\n    """探测失败的基类。"""\n\n\nclass NetworkError(ProbeError):\n    """连不上、握手失败、超时、连接中断。"""\n\n\nclass StatusError(ProbeError):\n    """服务器返回了 4xx / 5xx。"""\n\n    def __init__(self, status: int, body: str) -> None:\n        super().__init__(f"HTTP {status}: {body[:200]}")\n        self.status = status\n\n\n@dataclass(frozen=True, slots=True)\nclass ProbeResult:\n    status: int\n    elapsed_ms: float\n    request_id: str | None\n    body_preview: str\n\n\ndef probe(config: ProbeConfig) -> ProbeResult:\n    timeout = httpx.Timeout(\n        connect=config.connect_timeout,\n        read=config.read_timeout,\n        write=config.read_timeout,\n        pool=config.connect_timeout,\n    )\n    started = time.perf_counter()\n    try:\n        with httpx.Client(timeout=timeout, headers=config.headers) as client:\n            resp = client.get(config.url)\n            resp.raise_for_status()\n    except httpx.TimeoutException as exc:\n        raise NetworkError(f"请求超时: {config.url}") from exc\n    except httpx.RequestError as exc:\n        raise NetworkError(f"网络错误: {exc!r}") from exc\n    except httpx.HTTPStatusError as exc:\n        raise StatusError(exc.response.status_code, exc.response.text) from exc\n\n    elapsed_ms = (time.perf_counter() - started) * 1000\n    return ProbeResult(\n        status=resp.status_code,\n        elapsed_ms=round(elapsed_ms, 1),\n        request_id=resp.headers.get("x-request-id") or resp.headers.get("x-ds-trace-id"),\n        body_preview=resp.text[:200],\n    )\n```',
+      ]),
+      s('7.4 cli.py 与 __main__.py：参数、退出码、入口', [
+        '```python\n# src/hello_world/cli.py\nimport argparse\nimport json\nimport sys\nfrom dataclasses import asdict\n\nfrom hello_world.config import ProbeConfig\nfrom hello_world.http_probe import ProbeError, probe\n\n\ndef main(argv: list[str] | None = None) -> int:\n    parser = argparse.ArgumentParser(prog="hello-world", description="HTTP 探测工具")\n    parser.add_argument("url", help="要请求的 URL")\n    parser.add_argument("--connect-timeout", type=float, default=5.0)\n    parser.add_argument("--read-timeout", type=float, default=10.0)\n    parser.add_argument("--header", action="append", default=[], metavar="K:V")\n    args = parser.parse_args(argv)\n\n    headers: dict[str, str] = {}\n    for raw in args.header:\n        key, sep, value = raw.partition(":")\n        if not sep:\n            parser.error(f"--header 需要 K:V 格式，收到: {raw}")\n        headers[key.strip()] = value.strip()\n\n    config = ProbeConfig(\n        url=args.url,\n        connect_timeout=args.connect_timeout,\n        read_timeout=args.read_timeout,\n        headers=headers,\n    )\n    try:\n        result = probe(config)\n    except ProbeError as exc:\n        print(f"[error] {exc}", file=sys.stderr)\n        return 1\n\n    print(json.dumps(asdict(result), ensure_ascii=False, indent=2))\n    return 0\n```',
+        '```python\n# src/hello_world/__main__.py\nfrom hello_world.cli import main\n\nif __name__ == "__main__":\n    raise SystemExit(main())\n```',
+        '`cli.py` 的 guard 看似多余（它主要被 import），但保留它能让你在调试时直接 `uv run python -m hello_world.cli ...`。`__main__.py` 里的 guard 同理，习惯成自然。',
+      ]),
+      s('7.5 运行与验证', [
+        '```bash\ncd projects/hello-world\nuv add httpx\n\n# 正常路径\nuv run python -m hello_world https://httpbin.org/get\n\n# 错误路径：没有 key 会返回 401，应走 StatusError，退出码为 1\nuv run python -m hello_world https://api.deepseek.com/models\necho $?    # PowerShell 用 $LASTEXITCODE\n\n# 走 [project.scripts] 注册的命令，和 -m 等价\nuv run hello-world https://httpbin.org/get\n```',
+        '正常输出形如 `{"status": 200, "elapsed_ms": 183.4, "request_id": null, "body_preview": "..."}`。如果 httpbin 较慢，加 `--read-timeout 30`；国内网络访问 GitHub API 不稳定，优先用 httpbin 和 DeepSeek 的 401 做验证。',
+      ]),
+
+      s('八、常见坑速查', [
+        '| 症状 | 原因 | 修法 |\n| --- | --- | --- |\n| `ModuleNotFoundError: hello_world` | 没 sync / 不在项目根 / 用了系统 python | `uv sync`，再用 `uv run python -c "import hello_world; print(hello_world.__file__)"` 确认 |\n| 改了 `pyproject.toml` 但 import 不到新包 | 只改声明没落地 | 跑 `uv sync`，或直接用 `uv add` |\n| `attempted relative import ...` | 直接运行了包内文件 | 改用 `python -m` |\n| 4xx/5xx 没有抛异常 | 忘了 `raise_for_status()` | 显式调用或判断状态码 |\n| 超时设置不生效 | 把 read 当成总时长 | read 是「无新数据的最大间隔」；总时长需自己计时 |\n| 重定向返回 301 | httpx 默认不跟随 | `follow_redirects=True` |\n| `resp.json()` 抛 `JSONDecodeError` | 返回的是 HTML 错误页 | 先看 `status_code` 和 `content-type` |\n| dataclass 可变默认值报错 | 直接写了 `{}` / `[]` | 用 `field(default_factory=dict)` |\n| 测试一 import 就跑了主逻辑 | 缺 `__name__ == "__main__"` guard | 加 guard，主逻辑收进函数 |\n| CI 里锁文件被偷偷改了 | 用了普通 `uv sync` | 改用 `uv sync --locked` |',
       ]),
     ],
     resources: [
-      r('httpx 文档', 'https://www.python-httpx.org/', '看 Quickstart 和 Timeouts'),
-      r('uv · Managing projects', 'https://docs.astral.sh/uv/guides/projects/', '对照 Maven 理解依赖与锁'),
+      r('httpx · Quickstart', 'https://www.python-httpx.org/quickstart/', '只在需要更多 API 细节时查，正文已覆盖今天用到的部分'),
+      r('httpx · Timeouts', 'https://www.python-httpx.org/advanced/timeouts/', '想确认四类超时的精确定义时看'),
+      r('uv · Managing projects', 'https://docs.astral.sh/uv/guides/projects/', '对照 Maven 查命令'),
+      r('Python 教程 · 错误与异常', 'https://docs.python.org/zh-cn/3/tutorial/errors.html', '需要补语法细节时看'),
       r('Python typing 文档', 'https://docs.python.org/zh-cn/3/library/typing.html', '用到再查，不要背'),
     ],
     practice: [
-      '写一个 CLI 小工具：调一个公开 HTTP 接口，设置超时、捕获异常、打印状态码与耗时。',
-      '给工具加类型注解和 dataclass 配置。',
-      '把依赖写进 pyproject.toml，用 uv sync 重建一次环境。',
+      '在 `projects/hello-world` 里执行 `uv add httpx`，确认 `pyproject.toml` 和 `uv.lock` 同时变化。',
+      '按实战章节建立 `config.py`、`http_probe.py`、`cli.py`、`__main__.py`，把 `[project.scripts]` 指向 `hello_world.cli:main`。',
+      '跑通正常路径：`uv run python -m hello_world https://httpbin.org/get`，能打印状态码、耗时和响应预览。',
+      '跑通错误路径：请求 `https://api.deepseek.com/models`（不带 key），确认返回 401、打印错误、退出码为 1。',
+      '删除 `.venv` 后执行 `uv sync`，重新跑一次工具；再用 `git status` 确认 `.venv` 没有出现在待提交列表里。',
+      '运行 `uv run mypy src`，把报错修到零（不要求给局部变量加注解）。',
     ],
     selfCheck: [
-      '为什么 HTTP 调用必须设超时？连接超时和读超时有什么区别？',
-      'pyproject.toml、uv.lock、.venv 各自对应 Maven 生态里的什么？',
-      'async 适合 CPU 密集任务吗？为什么？',
+      '`pyproject.toml`、`uv.lock`、`.venv` 各自负责什么？分别对应 Maven 生态里的什么？',
+      '为什么 lock 文件要提交、`.venv` 不提交？同事 clone 后只需执行哪条命令？',
+      '`python -m hello_world` 和 `python src/hello_world/__main__.py` 在 `sys.path`、包初始化、相对导入上有什么差别？',
+      '模块顶层写 `print(...)`，被 import 两次会打印几次？为什么？',
+      '`if __name__ == "__main__":` 到底防的是什么？不写会出什么具体问题？',
+      '`except Exception` 为什么危险？什么位置可以接受它？`raise ... from exc` 解决了什么？',
+      '`httpx` 的 read timeout 是请求总时长吗？LLM 场景该怎么设？',
+      '默认情况下 httpx 遇到 4xx/5xx 会抛异常吗？怎么让它抛？',
+      '哪些 HTTP 错误可重试、哪些绝不能重试？重试必须带哪三个要素？',
+      'dataclass 的可变默认值为什么必须用 `field(default_factory=...)`？',
+      'asyncio 适合 CPU 密集任务吗？为什么？',
     ],
   },
 
   'w1d4': {
-    goal: '把 token、上下文、温度、幻觉这些天天被提到的词，变成能算账、能调参的工程概念。',
+    goal: '把 token、上下文、温度、幻觉这些天天被提到的词，变成能算账、能调参、能面试的工程概念。今天结束时的验收物：一张参数速查表、一笔算得清的成本账、能脱稿说清 temperature 与 top_p 的区别。',
     sections: [
-      s('token 是计费与延迟的单位', [
-        '模型按 token 计费，输入和输出分开算，输出通常更贵。上下文越长、输出越长，费用和延迟越高。',
-        '中文大约 1 个汉字 ≈ 1 个 token 上下（不同分词器有差异），不要用「字数」估算成本。',
+      s('今日大纲：2 小时怎么用', [
+        '今天不写复杂代码，重点是建立「看得懂账单、说得清参数」的模型观。下面每节都自带完整说明和算例，不需要再翻文档；颜色块是面试时真正要能复述的内容。',
+      ], [
+        '0:00–0:15 模型观：LLM 是下一 token 预测器，一次请求长什么样。',
+        '0:15–0:35 token：分词、估算、usage、计费公式，算一笔 1000 次调用的账。',
+        '0:35–0:50 上下文窗口 vs 最大输出：预算公式、超窗策略、长上下文的代价。',
+        '0:50–1:10 采样参数：temperature、top_p、top_k、惩罚项、stop、seed。',
+        '1:10–1:25 输出控制：max_tokens、JSON mode、工具调用、思考模式。',
+        '1:25–1:40 延迟与流式：TTFT、tokens/s、SSE。',
+        '1:40–1:50 幻觉：三个来源、缓解手段与边界。',
+        '1:50–2:00 参数速查表 + 面试自测。',
       ]),
-      s('上下文窗口 ≠ 最大输出', [
-        '上下文窗口是输入 + 输出的总预算；最大输出是单次生成的上限。超窗口要截断、摘要或检索，不要硬塞。',
-        '长上下文不是免费的：缓存命中与未命中的价格差一个数量级，延迟也会上升。',
+      s('颜色约定', [
+        '全篇用四种颜色标记面试相关内容，看到颜色就按对应标准要求自己：',
+        '::: info 图例\n- 🔴 红（danger）：面试必背的定义、公式、数字，要能脱稿复述。\n- 🟠 橙（warning）：面试常问的追问和易错点，要能举例说明。\n- 🔵 蓝（info）：对比题、开放题的回答框架，要能分点作答。\n- 🟢 绿（tip）：能拉开差距的工程实践，回答时主动说出来。\n:::',
       ]),
-      s('temperature 与 top_p', [
-        'temperature 缩放概率分布：越低越确定，越高越发散；top_p 是核采样，只在累计概率前 p 的候选里采样。',
-        '抽取、分类、代码建议用 0–0.3；创意写作用 0.7–1.0；一般不要同时大改两个参数。',
+
+      s('一、先建立模型观：LLM 是下一 token 预测器', [
+        '调用一次 chat 接口，模型做的事情只有一件：根据你已经给出的全部 token，计算下一个 token 的概率分布，采样一个，追加到序列末尾，再重复，直到遇到停止条件。所谓「生成」，就是一个 token 一个 token 往外蹦。',
+        '这个模型观能推出后面所有工程约束：为什么按 token 计费、为什么上下文有上限、为什么同一个问题答案会变、为什么调用之间没有记忆。',
       ]),
-      s('幻觉的三个来源', [
-        '知识缺失：用 RAG 提供证据并要求引用。',
-        '知识过时：检索 + 时效性说明，别让模型猜。',
-        '任务超出能力：拆解任务，给计算器/代码执行等工具，并允许模型说「不知道」。',
+      s('1.1 一次请求长什么样', [
+        'OpenAI 兼容协议里，请求的核心是 `messages` 数组。`system` 定角色和规则，`user` 是本次输入，`assistant` 是历史回复（多轮时由客户端回填）。',
+        '```json\n{\n  "model": "deepseek-flash",\n  "messages": [\n    {"role": "system", "content": "你是严谨的技术助教。"},\n    {"role": "user", "content": "用一句话解释 token。"}\n  ],\n  "temperature": 0.2,\n  "max_tokens": 200,\n  "stream": false\n}\n```',
+        '响应里最值得看的不是正文，而是三个字段：`choices[0].message.content`（正文）、`choices[0].finish_reason`（为什么停）、`usage`（花了多少 token）。',
+        '```json\n{\n  "choices": [{\n    "message": {"role": "assistant", "content": "token 是模型处理文本的最小单位。"},\n    "finish_reason": "stop"\n  }],\n  "usage": {\n    "prompt_tokens": 28,\n    "completion_tokens": 16,\n    "total_tokens": 44\n  }\n}\n```',
+        '`finish_reason` 的常见取值：',
+        '| 值 | 含义 | 你要做什么 |\n| --- | --- | --- |\n| `stop` | 正常结束 | 直接使用结果 |\n| `length` | 达到 `max_tokens` 被截断 | 输出不完整，考虑调大上限或让模型分段输出 |\n| `tool_calls` | 模型请求调用工具 | 执行工具，把结果回填后继续 |\n| `content_filter` | 被安全策略拦截 | 换问法或走人工 |',
+      ]),
+      s('1.2 三个必须记住的推论', [
+        '这三条是后面所有讨论的地基，也是面试里区分「用过 API」和「理解模型」的地方。',
+        '::: danger 🔴 面试必背：LLM 的三个工程推论\n- 无状态：两次 API 调用之间模型不记得任何东西；多轮对话靠客户端每次把历史消息重发。\n- 知识有截止日期：训练数据之后的事情它不知道，除非你放进上下文。\n- 输出是采样结果：同一个问题不保证同一个答案；temperature 控制的是随机性，不是「智能程度」。\n:::',
+      ]),
+
+      s('二、token：计价、上下文和延迟的共同单位', [
+        'token 是模型处理文本的最小单位。它不是字，也不是词，而是分词器（tokenizer）按训练时学到的规则切出来的片段。英文单词可能被切成多个 token，中文一个字也可能对应一个或多个 token，空格和标点同样计入。',
+      ]),
+      s('2.1 怎么估算 token', [
+        'DeepSeek 官方给出的粗略换算：**1 个英文字符 ≈ 0.3 token，1 个中文字符 ≈ 0.6 token**。据此可以快速心算：',
+        '| 输入 | 粗算 token | 说明 |\n| --- | --- | --- |\n| 1000 个中文字符 | ≈ 600 | 中文文章、聊天 |\n| 1000 个英文字符 | ≈ 300 | 英文文档 |\n| 1000 行代码 | 往往更多 | 符号、缩进、变量名切得碎 |',
+        '这只是估算。不同模型的分词器不同，同一段文本的 token 数可能差很多；真实账单永远以响应里的 `usage` 为准。',
+      ]),
+      s('2.2 usage 与计费公式', [
+        '```json\n"usage": {\n  "prompt_tokens": 2000,\n  "completion_tokens": 500,\n  "total_tokens": 2500,\n  "prompt_cache_hit_tokens": 1500,\n  "prompt_cache_miss_tokens": 500\n}\n```',
+        '`prompt_tokens` 是输入，`completion_tokens` 是输出。开启思考模式后，reasoning token 也计入输出（以厂商账单为准）。DeepSeek 还会给出缓存命中和未命中的 token 数，因为两者单价不同。',
+        '计费公式：`cost = 输入 token / 1,000,000 × 输入单价 + 输出 token / 1,000,000 × 输出单价`。缓存命中的输入 token 按更低的命中价计算。',
+        '::: danger 🔴 面试必背：token 与计费\n- token 是分词器切出来的最小单位，不是字、不是词；中文与英文的换算比例不同。\n- 输入（prompt_tokens）和输出（completion_tokens）分开计价，输出通常更贵。\n- 费用 = 输入 token × 输入单价 + 输出 token × 输出单价；缓存命中价通常低一个数量级。\n- 永远以响应里的 usage 为准，不要用字数估算做账单。\n:::',
+      ]),
+      s('2.3 DeepSeek 价格与时段（2026-11）', [
+        '下面数字来自官方定价页，单位是「元 / 百万 token」，格式为「空闲 / 高峰」。调价频繁，动手前以官方页面为准。',
+        '| 模型 | 上下文 | 最大输出 | 输入（缓存未命中） | 输入（缓存命中） | 输出 |\n| --- | --- | --- | --- | --- | --- |\n| `deepseek-flash` | 1M | 384K | 1 / 2 元 | 0.02 / 0.04 元 | 4 / 8 元 |\n| `deepseek-v4-pro` | 1M | 384K | 4.5 / 9 元 | 0.15 / 0.30 元 | 13.5 / 27 元 |',
+        '高峰时段是北京时间周一到周五（不含法定节假日）09:00–12:00、14:00–18:00；其余时间为空闲时段，价格是高峰的一半。批量评测、离线任务放到晚上或周末，成本直接减半。',
+        '缓存命中要求前缀完全一致，且由服务端自动判断。把稳定的 system prompt、few-shot 示例、知识库固定头部放在消息最前面，后面的可变内容不影响前缀缓存。',
+      ]),
+      s('2.4 算一笔账', [
+        '假设 1000 次调用，每次输入 2000 token、输出 500 token，全部缓存未命中，使用 `deepseek-flash` 空闲时段：',
+        '```\n输入：1000 × 2000 = 2,000,000 token = 2M\n      2M × 1 元/M = 2 元\n输出：1000 × 500 = 500,000 token = 0.5M\n      0.5M × 4 元/M = 2 元\n合计：4 元（高峰时段 8 元）\n```',
+        '如果其中 1500 token 是固定 system prompt 且命中缓存：',
+        '```\n缓存命中输入：1.5M × 0.02 元/M = 0.03 元\n缓存未命中输入：0.5M × 1 元/M = 0.5 元\n输出：0.5M × 4 元/M = 2 元\n合计：2.53 元，比 4 元省约 37%\n```',
+        '这就是为什么工程上要「稳定内容放前面、可变内容放后面」：不是为了好看，是直接省钱。',
+      ]),
+      s('2.5 为什么同一个问题费用差很多', [
+        '::: info 🔵 面试对比：为什么同一个问题，两次调用费用差很多？\n- 输出长度不同：最常见，多写 500 token 就是多 500 token 的钱。\n- 多轮对话把历史全带上，输入随轮次线性增长。\n- 思考模式产生 reasoning token，按输出计费。\n- 缓存命中 / 未命中、高峰 / 低谷的单价不同。\n- 模型不同、重试次数不同、分词器不同。\n:::',
+      ]),
+
+      s('三、上下文窗口 ≠ 最大输出', [
+        '这两个概念经常被混为一谈，但它们在预算里扮演不同角色。',
+      ]),
+      s('3.1 两个预算', [
+        '上下文窗口是本次请求「输入 + 输出」共享的总预算；最大输出是单次生成的上限。以 `deepseek-flash` 为例：窗口 1M，最大输出 384K。你可以输入 900K、输出最多 100K，也可以输入 700K、输出 300K，但两者之和不能超过窗口。',
+        '`max_tokens` 只是「最多生成多少」，不是预留。设成 1000 不会提前扣 1000 token 的钱；设得太小，输出会被截断，`finish_reason` 变成 `length`。',
+        '::: danger 🔴 面试必背：上下文窗口 ≠ 最大输出\n- 上下文窗口 = 本次请求的输入 + 输出共享的总预算。\n- max_tokens 只是输出上限，不是预留；设大了不会多收费，设小了会被截断（finish_reason=length）。\n- 超窗口必须截断、摘要或检索，不能硬塞。\n:::',
+      ]),
+      s('3.2 超窗了怎么办', [
+        '按代价从低到高：',
+        '| 策略 | 做法 | 适用 | 代价 |\n| --- | --- | --- | --- |\n| 滑窗 | 只保留最近 N 轮 | 闲聊、连续对话 | 丢失早期信息 |\n| 摘要 | 把早期对话压成摘要 | 长会话 | 多一次模型调用 |\n| 检索 | RAG 只取相关片段 | 知识库问答 | 需要索引和召回质量 |\n| 分块 | 把长文档拆成多次调用 | 长文分析 | 需要合并结果 |',
+        '不要用「硬塞 + 祈祷」的方式处理超窗：既贵又慢，关键信息还可能被模型忽略。',
+      ]),
+      s('3.3 长上下文的三个代价', [
+        '第一是钱：输入 token 按量计费，塞满 1M 就是实打实的成本。第二是延迟：prefill 阶段要处理全部输入，上下文越长，首 token 越慢。第三是注意力：模型对长上下文中间部分的信息召回通常弱于开头和结尾（常说的 lost in the middle），所以关键指令和证据要放在显眼位置。',
+      ]),
+      s('3.4 1M 上下文还需要 RAG 吗', [
+        '::: info 🔵 面试对比：上下文已经 1M，还需要 RAG 吗？\n需要，四个理由：\n- 成本与延迟：每次塞满都按输入 token 付费，长上下文 prefill 更慢。\n- 知识更新：RAG 改索引即可，不用改 prompt、不用重训。\n- 权限隔离：检索层可以按用户过滤，塞上下文做不到细粒度授权。\n- 可引用：返回片段和来源，才能做溯源和评测。\n:::',
+      ]),
+
+      s('四、采样参数：temperature、top_p、top_k', [
+        '模型每生成一个 token，都会先得到一个覆盖整个词表的分数（logits），再经过 softmax 变成概率分布，最后从这个分布里采样。采样参数改的就是「怎么从分布里选」。',
+      ]),
+      s('4.1 从 logits 到采样', [
+        '```\nlogits z  →  除以 T  →  softmax  →  概率分布 p  →  截断（top_p / top_k）  →  归一化  →  采样\n```',
+        'temperature 作用在 softmax 之前，改变分布的「尖锐程度」；top_p 和 top_k 作用在 softmax 之后，直接砍掉尾部候选。三者不是同一层的东西，所以同时大改会很难判断效果来自哪里。',
+      ]),
+      s('4.2 temperature', [
+        '公式是 `p_i = exp(z_i / T) / Σ exp(z_j / T)`。T 越小，大分数和小分数的差距被放大，分布更尖锐；T 越大，分布更平坦，低概率 token 也有机会被选中；T=0 在实际实现中等价于直接取概率最大的 token。',
+        '面试里不要只说「temperature 控制创造性」，要说出它改的是概率分布的尖锐程度，以及 T=0 是贪心解码。',
+        '::: danger 🔴 面试必背：temperature 与 top_p\n- temperature 缩放 logits：p_i ∝ exp(z_i / T)。T 小于 1 更尖锐（更确定），T 大于 1 更平坦（更发散），T=0 等价于取概率最大的 token。\n- top_p（核采样）按概率从高到低累加，只保留累计概率达到 p 的最小候选集合，再归一化采样；top_p=1 不截断。\n- 两者都在改「从概率分布里怎么选」，不要同时大改；temperature=0 时 top_p 基本不起作用。\n:::',
+      ]),
+      s('4.3 top_p 与 top_k', [
+        'top_p（核采样）先按概率从高到低排序，累加到一个刚好达到 p 的最小集合，只在这个集合里采样。top_p=0.9 表示「只考虑累计概率 90% 的候选」，尾部 10% 直接丢弃。top_k 则是固定保留概率最高的 k 个候选，不管它们的累计概率是多少。',
+        '::: info 🔵 面试对比：top_p 和 top_k 有什么区别？\n- top_k 固定保留概率最高的 k 个候选，候选数量固定。\n- top_p 保留累计概率达到 p 的最小集合，候选数量随分布变化：分布尖锐时少，平坦时多。\n- 实践里 top_p 更常用；不少 API 只暴露 temperature 和 top_p。\n:::',
+      ]),
+      s('4.4 怎么选值', [
+        '通用经验：确定性任务（抽取、分类、代码、事实问答）用 0–0.3；通用对话 0.7 左右；创意写作 0.9–1.2。但这只是跨模型的粗略经验，不同厂商对 temperature 的校准不同，不能直接搬数字。',
+        'DeepSeek 官方在 2026-11 给出的建议是：代码生成/数学解题 0.0，数据抽取/分析 1.0，通用对话 1.3，翻译 1.3，创意写作/诗歌 1.5。先按厂商建议起步，再用自己的评测集微调。',
+        '::: warning 🟠 面试常问：temperature 到底设多少？\n- 通用经验：抽取、分类、代码、事实问答用 0–0.3；创意写作用 0.7–1.2。\n- DeepSeek 官方建议（2026-11）：代码/数学 0.0，数据抽取/分析 1.0，通用对话 1.3，翻译 1.3，创意写作 1.5。\n- 不同厂商的默认值和校准不同，数字不能跨模型直接搬；先按厂商建议，再用自己的评测集调。\n:::',
+        '::: warning 🟠 面试追问：temperature=0 就每次都一样吗？\n不一定。GPU 浮点非确定性、动态批处理、并行归约、模型版本更新都会带来差异；seed 只能降低、不能消除。工程上按「不确定」设计：校验、重试、评测。\n:::',
+      ]),
+      s('4.5 其他采样与生成参数', [
+        '| 参数 | 作用 | 常用值 | 坑 |\n| --- | --- | --- | --- |\n| `top_p` | 核采样，截断概率尾部 | 0.9–1.0 | 与 temperature 同时大改会互相掩盖效果 |\n| `top_k` | 固定保留前 k 个候选 | 视 API 支持 | 不是所有厂商都暴露 |\n| `presence_penalty` | 惩罚「已经出现过」的 token，鼓励新话题 | 0–0.5 | 太高会让内容跑题、逻辑断裂 |\n| `frequency_penalty` | 按出现次数惩罚，抑制重复 | 0–0.5 | 太高会破坏专有名词和代码 |\n| `stop` | 遇到指定字符串停止 | 按业务定 | 命中 stop 时 `finish_reason` 仍是 `stop`，但内容被截断 |\n| `seed` | 尽量复现采样 | 固定整数 | 只能降低随机性，不能保证完全一致 |',
+        '惩罚项的默认值通常是 0；只有出现明显重复或需要强制换话题时才调。多数业务只调 temperature、max_tokens，必要时加 stop。',
+      ]),
+
+      s('五、输出控制：max_tokens、结构化输出、思考模式', [
+        '采样参数决定「怎么选 token」，输出控制决定「生成多少、生成什么形状」。',
+      ]),
+      s('5.1 max_tokens 与 finish_reason', [
+        '`max_tokens` 是单次生成的硬上限。判断输出是否完整，不要看字数，要看 `finish_reason`：`stop` 才是正常结束，`length` 说明被截断。截断的 JSON 一定解析失败，截断的代码也不可执行。',
+        '不同厂商字段名可能不同（例如 `max_completion_tokens`），以对应 API 文档为准；逻辑是一样的。',
+      ]),
+      s('5.2 JSON mode 与校验重试', [
+        'JSON mode 的服务端约束只保证「输出是合法 JSON」，不保证字段名、类型、枚举值和业务约束。生产流程必须是：拿到文本 → 用 pydantic/JSON Schema 校验 → 失败时把校验错误回填给模型重试 → 仍失败则降级或人工兜底。',
+        'DeepSeek 的 JSON 输出还有两个坑：prompt（system 或 user）里必须出现 JSON 字样并给出目标格式样例；`max_tokens` 太小导致截断时，`finish_reason` 可能仍是 `stop`，但 content 会被清洗成空格，看起来像空回复。所以既要给足输出上限，也要对空 content 做兜底重试。',
+        '::: warning 🟠 面试常问：JSON mode 能保证字段正确吗？\n不能。json_object 只保证「是合法 JSON」，不保证字段名、类型和业务约束。生产做法是 schema 校验 → 把错误信息回填给模型重试 → 仍失败则降级或人工兜底。结构化输出是「校验 + 重试」，不是「让模型别出错」。\n:::',
+      ]),
+      s('5.3 工具调用', [
+        '工具调用（function calling）是把「模型输出结构化意图」做到协议层：请求里带 `tools` 的 schema，模型返回 `tool_calls`（函数名 + 参数），你的代码执行函数，再把结果作为工具消息回填，模型继续生成。',
+        '这条链路是 W2 Agent 的基础。今天只要理解两点：模型只负责「决定调哪个工具、传什么参数」，真正执行和权限校验在代码里；工具返回的结果会成为下一轮上下文的一部分，也会计入 token。',
+      ]),
+      s('5.4 思考模式', [
+        'DeepSeek 的思考模式默认开启。开启后模型会先产生一段 reasoning 内容，再给最终答案；reasoning token 按输出计费，延迟也更高。简单任务（分类、抽取、翻译、格式转换）可以关掉，省钱且更快；复杂推理、数学、多步任务再打开。',
+        '```python\nextra_body={"thinking": {"type": "disabled"}}\n# 需要深度推理时：\nextra_body={"thinking": {"type": "enabled"}, "reasoning_effort": "high"}\n```',
+        '面试里可以把它和成本控制联系起来：同一件事，开着思考可能贵几倍，关掉思考又可能答不对；按任务难度分层，是比「一律用最强模型」更专业的回答。',
+      ]),
+
+      s('六、延迟与流式', [
+        '用户感知的「快慢」和账单上的「总时长」不是一回事。把延迟拆开，才知道该优化哪里。',
+      ]),
+      s('6.1 延迟由什么组成', [
+        '一次调用大致由四段组成：排队与网络、prefill（处理输入，生成首 token）、decode（逐个生成输出 token）、以及客户端处理。常用两个指标：',
+        '- TTFT（Time To First Token）：从发请求到收到第一个 token 的时间，主要受输入长度和排队影响。',
+        '- 输出速度（tokens/s）：decode 阶段的生成速度，决定长回答的总时长。',
+        '近似公式：`总时长 ≈ TTFT + 输出 token 数 / 输出速度`。所以要降低「长回答」的等待，优先减少输出长度；要降低「首屏」等待，优先缩短输入、避免排队。',
+      ]),
+      s('6.2 流式输出', [
+        '流式用 SSE（Server-Sent Events）把增量 chunk 持续推给客户端，客户端边收边渲染。它不减少总生成时间，但把「等待完整答案」变成「很快看到开头」，感知延迟大幅下降。',
+        '实现上要处理：SSE 的半包/粘包、`[DONE]` 结束标记、断流重连、代理层缓冲，以及分别记录 TTFT 和总耗时。结构化输出场景通常不适合流式，因为你必须等完整 JSON 才能校验。',
+        '::: tip 🟢 面试加分：流式为什么「感觉快」，但并没有更便宜？\n- 首 token 时间（TTFT）远小于完整生成时间，用户先看到内容，感知延迟低。\n- 总 token 数和计费完全不变，流式只改变传输方式。\n- 工程上要处理 SSE 半包/粘包、断流重连、代理缓冲，并分别记录 TTFT 和总耗时。\n:::',
+      ]),
+
+      s('七、幻觉：来源、缓解与边界', [
+        '幻觉是模型生成流畅、自信，但事实错误或无法验证的内容。它不是「模型撒谎」，而是下一 token 预测机制在知识不足时仍然继续生成最像答案的文本。',
+      ]),
+      s('7.1 三个来源', [
+        '| 来源 | 表现 | 对策 |\n| --- | --- | --- |\n| 知识缺失 | 不知道却编一个 | RAG 提供证据、要求引用原文 |\n| 知识过时/训练偏差 | 用旧事实回答新问题 | 检索 + 时效性说明、标注数据日期 |\n| 任务超出能力 | 多步推理、精确计算出错 | 拆解任务、给计算器/代码执行工具 |',
+        '::: danger 🔴 面试必背：幻觉的三个来源与对策\n- 知识缺失 → RAG 提供证据，要求引用原文片段。\n- 知识过时或训练偏差 → 检索 + 时效性说明。\n- 任务超出能力（多步推理、精确计算）→ 拆解、给工具（计算器/代码执行）、允许说「不知道」。\n降低 temperature 只能减少随机性，不能补知识；RAG 能降低但不能消除幻觉，最终要靠评测和人工兜底。\n:::',
+      ]),
+      s('7.2 缓解手段与边界', [
+        '有效的组合通常是：检索到证据 → prompt 要求「只根据给定资料回答，并给出引用」→ 输出结构化答案（答案 + 引用片段）→ 程序校验引用是否存在 → 低置信度时转人工。',
+        '注意两个边界：第一，「不要幻觉」这种指令几乎没有约束力；第二，RAG 只能降低幻觉，不能消除，检索错、片段冲突、模型误读都会造成新的错误。',
+      ]),
+      s('7.3 怎么评测', [
+        '准备一个小型评测集（20–50 条），每条包含问题、标准答案或评分要点。指标至少看三个：正确率、引用命中率（回答里的引用是否真的支持结论）、拒答率（该说「不知道」时有没有说）。每次改 prompt 或换模型都跑一遍，避免「感觉变好了」。',
+        '更细的评测可以用 LLM-as-judge，但 judge 本身也会错，关键业务仍要人工抽检。',
+      ]),
+
+      s('八、参数速查表（今天的交付物）', [
+        '下面这张表建议自己手抄一遍，或者整理成 `projects/w1/params.md`。面试前只看这张表。',
+        '| 参数 | 作用 | 建议 | 常见坑 |\n| --- | --- | --- | --- |\n| `model` | 选模型 | 简单任务 flash，难任务 pro | 不看任务一律用最贵模型 |\n| `messages` | 上下文与角色 | system 放稳定规则，user 放变量 | 多轮忘记回填 assistant 历史 |\n| `temperature` | 分布尖锐程度 | 确定性 0–0.3；创意 0.9+ | 与 top_p 同时大改 |\n| `top_p` | 核采样截断 | 0.9–1.0 | 以为它能替代 temperature |\n| `max_tokens` | 输出上限 | 按业务给足，不设太小 | 被截断后解析失败 |\n| `stop` | 停止序列 | 只在不希望出现特定内容时用 | 误伤正文 |\n| `presence_penalty` | 鼓励新话题 | 0–0.5 | 太高跑题 |\n| `frequency_penalty` | 抑制重复 | 0–0.5 | 太高破坏术语 |\n| `seed` | 尽量复现 | 固定整数 | 以为能 100% 一致 |\n| `stream` | 流式输出 | 聊天 UI 开，批处理关 | 结构化输出不等完整 JSON |\n| `response_format` | JSON 模式 | 配合 schema 校验 | 以为保证字段正确 |\n| `thinking` | 思考模式 | 简单任务关，复杂任务开 | 忽略 reasoning token 成本 |\n| `timeout` | 客户端超时 | connect 5s，read 60–120s | 不设超时 |',
+      ]),
+      s('8.1 五条使用原则', [
+        '1. 一次只改一个参数，并且用固定评测集对比；同时改三个参数，你无法判断收益来自哪里。',
+        '2. 先定任务类型，再定 temperature；不要从默认值开始盲调。',
+        '3. 输出长度是最容易被忽视的成本项：能 200 token 说清的事，不要让它写 1000。',
+        '4. 稳定前缀放前面吃缓存，可变内容放后面；这是零成本的优化。',
+        '5. 所有调用记录 model、参数、usage、TTFT、总耗时、finish_reason；没有这些数据，优化只能靠猜。',
+      ]),
+
+      s('九、常见误区速查', [
+        '| 误区 | 事实 |\n| --- | --- |\n| token 就是字数 | token 由分词器决定，中文、英文、代码的比例都不同 |\n| temperature=0 完全确定 | 浮点、批处理、版本更新都会带来差异 |\n| temperature 和 top_p 一起调更好 | 两者作用在同一环节，同时改会互相掩盖 |\n| max_tokens 设大更贵 | 它只是上限，不预留、不预付 |\n| 流式输出更便宜 | 计费按 token，流式只改传输方式 |\n| JSON mode 保证字段正确 | 只保证合法 JSON，业务约束仍要校验 |\n| 上下文塞得越满效果越好 | 又贵又慢，关键信息还可能被淹没 |\n| RAG 能消除幻觉 | 只能降低，检索和生成都可能出错 |\n| 输入和输出同价 | 输出通常更贵，且思考 token 按输出计费 |\n| 1M 上下文就不需要 RAG | 成本、延迟、更新、权限、引用都仍然需要 |',
+      ]),
+      s('面试收尾：30 秒回答模板', [
+        '::: tip 🟢 面试收尾：30 秒回答模板\n「LLM 是无状态的下一 token 预测器。工程上我用 token 估成本和上下文预算，用 temperature/top_p 控制采样，用 max_tokens 和 finish_reason 控制输出，用流式降低感知延迟，用 RAG 补知识，用 schema 校验和重试保证结构化输出。所有调用都记录 token、费用、TTFT 和 request id。」\n:::',
       ]),
     ],
     resources: [
-      r('DeepSeek · Models & Pricing', 'https://api-docs.deepseek.com/quick_start/pricing', '看上下文长度、价格、缓存命中价'),
-      r('DeepSeek API 文档', 'https://api-docs.deepseek.com/', '看请求参数与思考模式'),
-      r('OpenAI · Prompt engineering', 'https://platform.openai.com/docs/guides/prompt-engineering', '参数与提示词的关系'),
+      r('DeepSeek · Models & Pricing', 'https://api-docs.deepseek.com/quick_start/pricing', '正文已用 2026-11 价格；调价后以此页为准'),
+      r('DeepSeek · Token 用量计算', 'https://api-docs.deepseek.com/quick_start/token_usage', '官方换算比例与离线 tokenizer'),
+      r('DeepSeek · 模型参数建议', 'https://api-docs.deepseek.com/quick_start/parameter_settings', '按任务查官方 temperature 建议'),
+      r('DeepSeek API 文档', 'https://api-docs.deepseek.com/', '查 JSON 输出、思考模式、工具调用细节'),
+      r('OpenAI · Prompt engineering', 'https://platform.openai.com/docs/guides/prompt-engineering', '参数与提示词的关系，按需看'),
     ],
     practice: [
-      '做一张参数速查表：token、上下文、temperature、top_p、max_tokens、流式、计费。',
-      '同一个问题用 temperature 0 / 0.7 / 1.2 各跑一次，记录输出差异。',
-      '估算「1000 次问答」的输入/输出 token 与费用。',
+      '做一张参数速查表，覆盖 model、messages、temperature、top_p、max_tokens、stop、stream、response_format、thinking、timeout，并写出每个参数的一个坑。',
+      '同一道题用 temperature 0 / 0.7 / 1.3 各跑一次（有 key 就写脚本，没有就用平台 Playground），记录输出差异和 usage；说不清差异就继续加次数。',
+      '算一笔账：1000 次调用、每次输入 2000 token、输出 500 token，分别算 flash 空闲、flash 高峰、pro 空闲；再算 1500 token 缓存命中后的节省。',
+      '把「temperature 与 top_p 的区别」和「为什么同一个问题费用差很多」各写一段 100 字以内的口述稿，录音回听一遍。',
+      '找一个你熟悉的业务场景，写出它的模型、温度、max_tokens、是否流式、是否需要 JSON，并说明理由。',
     ],
     selfCheck: [
-      'temperature 和 top_p 分别控制什么？为什么不要同时大改？',
-      '为什么「上下文塞满」既贵又慢？',
-      '幻觉的三个来源各自对应什么缓解手段？',
+      '不看资料，解释 token 是什么，并估算 1000 个中文字符大约多少 token。',
+      '输入价和输出价为什么不同？缓存命中价为什么能低一个数量级？',
+      '上下文窗口和最大输出分别是什么？max_tokens 设小了会发生什么？',
+      'temperature 做了什么运算？T=0 时模型如何选 token？',
+      'top_p 和 top_k 的区别是什么？为什么一般不同时大改 temperature 和 top_p？',
+      'temperature=0 能保证完全可复现吗？为什么？',
+      '同一个问题两次调用费用差很多，列出至少四个原因。',
+      'finish_reason=length 说明什么？应该怎么处理？',
+      'JSON mode 保证了什么、没保证什么？生产上还要做什么？',
+      '思考模式对成本、延迟、效果分别有什么影响？什么时候关掉？',
+      '幻觉的三个来源各对应什么缓解手段？为什么说 RAG 不能消除幻觉？',
+      '为什么上下文已经 1M，仍然需要 RAG？至少说出四个理由。',
     ],
   },
 
